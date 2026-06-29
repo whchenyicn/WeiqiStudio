@@ -1,5 +1,5 @@
 ---
-title: "How Capturing Works in Weiqi"
+title: "How Capturing Works in Weiqi/Baduk"
 description: "Learn how stones are captured in Weiqi by removing all liberties from an opponent's stone or group."
 category: "Rules"
 date: "2026-06-29"

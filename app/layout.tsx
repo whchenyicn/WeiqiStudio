@@ -10,6 +10,9 @@ export const metadata: Metadata = {
   },
   description: 'A beginner-friendly Weiqi learning site with rules, lessons, strategy, glossary pages, and practical examples.',
   metadataBase: new URL('https://example.com'),
+  verification: {
+    google: 'YBkfUp8jyY6rTazyWZ0wACThKFiz0l3sJWAtZ2jWoF4',
+  },
 }
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {

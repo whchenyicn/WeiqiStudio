@@ -5,8 +5,8 @@ import { Footer } from '@/components/Footer'
 
 export const metadata: Metadata = {
   title: {
-    default: 'Learn Weiqi | Beginner Go Lessons',
-    template: '%s | Learn Weiqi',
+    default: 'Weiqi Studio | Beginner Go Lessons',
+    template: '%s | Weiqi Studio',
   },
   description: 'A beginner-friendly Weiqi learning site with rules, lessons, strategy, glossary pages, and practical examples.',
   metadataBase: new URL('https://example.com'),

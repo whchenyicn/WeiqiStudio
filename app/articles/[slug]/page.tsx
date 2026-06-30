@@ -33,7 +33,7 @@ export default async function ArticlePage({ params }: { params: Promise<{ slug: 
     headline: article.title,
     description: article.description,
     datePublished: article.date,
-    author: { '@type': 'Organization', name: 'Learn Weiqi' },
+    author: { '@type': 'Organization', name: 'Weiqi Studio' },
   }
 
   return (

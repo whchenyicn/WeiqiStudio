@@ -1,6 +1,7 @@
-import { Metadata } from 'next'
-import Link from 'next/link'
+import type { Metadata } from 'next'
 import { getAllArticles, getArticleBySlug } from '@/lib/articles'
+import { AdPlaceholder, LessonHero, LessonSidebar } from '@/components/article/LessonArticle'
+import styles from '@/components/article/ArticleContent.module.css'
 
 export async function generateStaticParams() {
   const articles = await getAllArticles()
@@ -21,11 +22,24 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
   }
 }
 
+function getReadingTime(html: string) {
+  const text = html.replace(/<[^>]*>/g, ' ').replace(/\s+/g, ' ').trim()
+  return Math.max(1, Math.ceil(text.split(' ').filter(Boolean).length / 200))
+}
+
+function getLessonHeadings(html: string) {
+  return Array.from(html.matchAll(/<h2[^>]*>(.*?)<\/h2>/g), (match) =>
+    match[1].replace(/<[^>]*>/g, '').trim()
+  )
+}
+
 export default async function ArticlePage({ params }: { params: Promise<{ slug: string }> }) {
   const { slug } = await params
   const article = await getArticleBySlug(slug)
   const articles = await getAllArticles()
   const related = articles.filter((item) => item.slug !== article.slug).slice(0, 4)
+  const readingTime = getReadingTime(article.contentHtml)
+  const headings = getLessonHeadings(article.contentHtml)
 
   const jsonLd = {
     '@context': 'https://schema.org',
@@ -37,37 +51,27 @@ export default async function ArticlePage({ params }: { params: Promise<{ slug: 
   }
 
   return (
-    <div className="mx-auto grid max-w-6xl gap-10 px-4 py-12 lg:grid-cols-[1fr_300px]">
+    <div className="bg-[#fafaf8]">
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }} />
-      <article className="rounded-2xl bg-white p-6 shadow-sm md:p-10">
-        <nav className="mb-6 text-sm text-stone-500">
-          <Link href="/">Home</Link> / <Link href="/articles">Articles</Link> / {article.title}
-        </nav>
-        <p className="mb-3 text-sm font-semibold uppercase tracking-wide text-emerald-700">{article.category}</p>
-        <h1 className="mb-4 text-4xl font-bold tracking-tight text-stone-950">{article.title}</h1>
-        <p className="mb-8 text-lg text-stone-700">{article.description}</p>
-        <div className="mb-8 rounded-xl border border-dashed bg-stone-50 p-4 text-sm text-stone-600">
-          Ad placeholder — this space can be used later for Google AdSense or another ad network.
-        </div>
-        <div className="prose prose-stone max-w-none" dangerouslySetInnerHTML={{ __html: article.contentHtml }} />
-      </article>
 
-      <aside className="space-y-6">
-        <div className="rounded-2xl border bg-white p-5 shadow-sm">
-          <h2 className="mb-3 font-bold">Related Articles</h2>
-          <div className="space-y-3">
-            {related.map((item) => (
-              <Link key={item.slug} href={`/articles/${item.slug}`} className="block text-sm font-medium">
-                {item.title}
-              </Link>
-            ))}
-          </div>
+      <LessonHero
+        title={article.title}
+        description={article.description}
+        category={article.category}
+        date={article.date}
+        readingTime={readingTime}
+      />
+
+      <div className="mx-auto grid max-w-7xl gap-8 px-5 py-10 sm:px-8 sm:py-14 lg:grid-cols-[minmax(0,1fr)_300px] lg:gap-12 lg:px-10">
+        <div className="min-w-0">
+          <AdPlaceholder />
+          <article className="mt-8 rounded-[1.75rem] bg-white px-6 py-8 shadow-[0_16px_50px_-40px_rgba(28,25,23,0.5)] ring-1 ring-stone-900/[0.05] sm:px-10 sm:py-12 lg:px-12">
+            <div className={styles.content} dangerouslySetInnerHTML={{ __html: article.contentHtml }} />
+          </article>
         </div>
-        <div className="rounded-2xl border bg-white p-5 shadow-sm">
-          <h2 className="mb-2 font-bold">Learning Path</h2>
-          <p className="text-sm text-stone-600">Follow the articles in order to build a solid beginner foundation.</p>
-        </div>
-      </aside>
+
+        <LessonSidebar headings={headings} related={related} />
+      </div>
     </div>
   )
 }

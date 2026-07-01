@@ -100,7 +100,7 @@ function ModuleContent({ lesson, index }: { lesson: RoadmapLesson; index: number
 
       <div className="mt-5">
         <span className={lesson.href
-          ? 'inline-flex items-center gap-2 rounded-full bg-emerald-950 px-3.5 py-2 text-xs font-semibold text-white shadow-[0_6px_16px_-10px_rgba(6,78,59,0.8)] transition-colors duration-300 group-hover:bg-emerald-900'
+          ? 'inline-flex items-center gap-2 rounded-full bg-emerald-950 px-3.5 py-2 text-xs font-semibold !text-white shadow-[0_6px_16px_-10px_rgba(6,78,59,0.8)] transition-colors duration-300 group-hover:bg-emerald-900'
           : 'inline-flex items-center rounded-full bg-stone-100 px-3.5 py-2 text-xs font-semibold text-stone-400'}>
           {lesson.href ? (
             <>Start Lesson <span aria-hidden="true" className="transition-transform duration-300 group-hover:translate-x-0.5">&rarr;</span></>

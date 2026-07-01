@@ -13,10 +13,10 @@ const defaultLessons: RoadmapLesson[] = [
   { title: 'Liberties', href: '/articles/liberties-in-weiqi', duration: '6 min' },
   { title: 'Capturing', href: '/articles/how-capturing-works-in-weiqi', duration: '7 min' },
   { title: 'Atari', href: '/articles/what-is-atari-in-weiqi', duration: '5 min' },
-  { title: 'Eyes', duration: '6 min' },
-  { title: 'Territory', duration: '7 min' },
-  { title: 'Scoring', duration: '8 min' },
-  { title: 'Play Your First Game', duration: '10 min' },
+  { title: 'Eyes', href: '/articles/eyes-in-weiqi', duration: '6 min' },
+  { title: 'Territory', href: '/articles/territory-in-weiqi', duration: '7 min' },
+  { title: 'Scoring', href: '/articles/scoring-in-weiqi', duration: '8 min' },
+  { title: 'Play Your First Game', href: '/articles/play-your-first-game', duration: '10 min' },
 ]
 
 type Point = [number, number]

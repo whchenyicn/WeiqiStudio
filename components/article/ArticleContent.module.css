@@ -47,7 +47,73 @@
 .content hr { border: 0; border-top: 1px solid #e7e5e4; margin: 3rem 0; }
 .content code { background: #f1f0ed; border-radius: 0.35rem; color: #294936; font-size: 0.9em; padding: 0.15em 0.35em; }
 
+.content table {
+  border: 1px solid #e7e5e4;
+  border-collapse: separate;
+  border-radius: 0.875rem;
+  border-spacing: 0;
+  display: block;
+  font-size: 0.9rem;
+  line-height: 1.5;
+  margin: 1.75rem 0 2.25rem;
+  max-width: 100%;
+  overflow-x: auto;
+  width: 100%;
+}
+
+.content thead {
+  background: #f4f4ef;
+}
+
+.content th,
+.content td {
+  min-width: 9rem;
+  padding: 0.8rem 1rem;
+  text-align: left;
+  vertical-align: top;
+}
+
+.content th {
+  color: #292524;
+  font-size: 0.78rem;
+  font-weight: 650;
+  letter-spacing: 0.035em;
+  white-space: nowrap;
+}
+
+.content td {
+  color: #57534e;
+}
+
+.content th + th,
+.content td + td {
+  border-left: 1px solid #e7e5e4;
+}
+
+.content tbody tr + tr td {
+  border-top: 1px solid #eeece9;
+}
+
+.content tbody tr:nth-child(even) {
+  background: #fcfcfa;
+}
+
+.content table::-webkit-scrollbar {
+  height: 0.5rem;
+}
+
+.content table::-webkit-scrollbar-thumb {
+  background: #d6d3d1;
+  border: 2px solid #fafaf8;
+  border-radius: 999px;
+}
+
 @media (max-width: 640px) {
   .content { font-size: 1rem; line-height: 1.75; }
   .content h2 { font-size: 1.45rem; margin-top: 2.5rem; }
+  .content th, .content td { min-width: 8.5rem; padding: 0.7rem 0.85rem; }
+}
+
+@media (min-width: 641px) {
+  .content table { display: table; }
 }

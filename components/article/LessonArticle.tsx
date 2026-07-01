@@ -52,9 +52,14 @@ export function AdPlaceholder({ compact = false }: { compact?: boolean }) {
   )
 }
 
-export function LessonSidebar({ headings, related }: { headings: string[]; related: ArticleMeta[] }) {
-  const nextLesson = related[0]
+type LessonSidebarProps = {
+  headings: string[]
+  related: ArticleMeta[]
+  previousLesson?: ArticleMeta
+  nextLesson?: ArticleMeta
+}
 
+export function LessonSidebar({ headings, related, previousLesson, nextLesson }: LessonSidebarProps) {
   return (
     <aside className="space-y-5 lg:sticky lg:top-6 lg:self-start" aria-label="Lesson resources">
       <section className="rounded-2xl bg-white p-5 shadow-[0_10px_30px_-26px_rgba(28,25,23,0.45)] ring-1 ring-stone-900/[0.06]">
@@ -69,12 +74,22 @@ export function LessonSidebar({ headings, related }: { headings: string[]; relat
         </ol>
       </section>
 
-      {nextLesson && (
-        <Link href={`/articles/${nextLesson.slug}`} className="group block rounded-2xl bg-emerald-950 p-5 !text-white shadow-[0_16px_35px_-28px_rgba(6,78,59,0.8)] transition hover:-translate-y-0.5 hover:bg-emerald-900">
-          <p className="text-[10px] font-semibold uppercase tracking-[0.16em] text-emerald-200">Continue learning</p>
-          <p className="mt-3 text-sm font-semibold leading-5">{nextLesson.title}</p>
-          <p className="mt-4 text-xs font-semibold text-emerald-100">Next lesson <span aria-hidden="true" className="inline-block transition-transform group-hover:translate-x-1">&rarr;</span></p>
-        </Link>
+      {(previousLesson || nextLesson) && (
+        <nav aria-label="Beginner course navigation" className="overflow-hidden rounded-2xl bg-white shadow-[0_10px_30px_-26px_rgba(28,25,23,0.45)] ring-1 ring-stone-900/[0.06]">
+          {previousLesson && (
+            <Link href={`/articles/${previousLesson.slug}`} rel="prev" className="group block p-5 transition-colors hover:bg-stone-50">
+              <p className="text-[10px] font-semibold uppercase tracking-[0.16em] text-stone-400"><span aria-hidden="true">&larr;</span> Previous lesson</p>
+              <p className="mt-2 text-sm font-semibold leading-5 text-stone-700 transition-colors group-hover:text-emerald-900">{previousLesson.title}</p>
+            </Link>
+          )}
+          {previousLesson && nextLesson && <div className="mx-5 h-px bg-stone-100" />}
+          {nextLesson && (
+            <Link href={`/articles/${nextLesson.slug}`} rel="next" className="group block bg-emerald-950 p-5 !text-white transition-colors hover:bg-emerald-900">
+              <p className="text-[10px] font-semibold uppercase tracking-[0.16em] text-emerald-200">Next lesson <span aria-hidden="true">&rarr;</span></p>
+              <p className="mt-2 text-sm font-semibold leading-5 text-white">{nextLesson.title}</p>
+            </Link>
+          )}
+        </nav>
       )}
 
       <section className="rounded-2xl bg-white p-5 shadow-[0_10px_30px_-26px_rgba(28,25,23,0.45)] ring-1 ring-stone-900/[0.06]">

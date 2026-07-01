@@ -3,6 +3,18 @@ import { getAllArticles, getArticleBySlug } from '@/lib/articles'
 import { AdPlaceholder, LessonHero, LessonSidebar } from '@/components/article/LessonArticle'
 import styles from '@/components/article/ArticleContent.module.css'
 
+const beginnerCourse = [
+  'what-is-weiqi',
+  'weiqi-board-and-stones',
+  'liberties-in-weiqi',
+  'how-capturing-works-in-weiqi',
+  'what-is-atari-in-weiqi',
+  'eyes-in-weiqi',
+  'territory-in-weiqi',
+  'scoring-in-weiqi',
+  'play-your-first-game',
+]
+
 export async function generateStaticParams() {
   const articles = await getAllArticles()
   return articles.map((article) => ({ slug: article.slug }))
@@ -37,7 +49,16 @@ export default async function ArticlePage({ params }: { params: Promise<{ slug: 
   const { slug } = await params
   const article = await getArticleBySlug(slug)
   const articles = await getAllArticles()
-  const related = articles.filter((item) => item.slug !== article.slug).slice(0, 4)
+  const courseIndex = beginnerCourse.indexOf(article.slug)
+  const previousSlug = courseIndex > 0 ? beginnerCourse[courseIndex - 1] : undefined
+  const nextSlug = courseIndex >= 0 && courseIndex < beginnerCourse.length - 1
+    ? beginnerCourse[courseIndex + 1]
+    : undefined
+  const previousLesson = articles.find((item) => item.slug === previousSlug)
+  const nextLesson = articles.find((item) => item.slug === nextSlug)
+  const related = articles
+    .filter((item) => item.slug !== article.slug && item.slug !== previousSlug && item.slug !== nextSlug)
+    .slice(0, 4)
   const readingTime = getReadingTime(article.contentHtml)
   const headings = getLessonHeadings(article.contentHtml)
 
@@ -70,7 +91,12 @@ export default async function ArticlePage({ params }: { params: Promise<{ slug: 
           </article>
         </div>
 
-        <LessonSidebar headings={headings} related={related} />
+        <LessonSidebar
+          headings={headings}
+          related={related}
+          previousLesson={previousLesson}
+          nextLesson={nextLesson}
+        />
       </div>
     </div>
   )

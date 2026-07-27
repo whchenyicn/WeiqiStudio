@@ -9,7 +9,7 @@ export const metadata: Metadata = {
     template: '%s | Weiqi Studio',
   },
   description: 'A beginner-friendly Weiqi learning site with rules, lessons, strategy, glossary pages, and practical examples.',
-  metadataBase: new URL('https://example.com'),
+  metadataBase: new URL('https://weiqi-studio.vercel.app'),
   verification: {
     google: 'YBkfUp8jyY6rTazyWZ0wACThKFiz0l3sJWAtZ2jWoF4',
   },

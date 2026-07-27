@@ -1,11 +1,11 @@
 ---
-title: "Ko Rule Explained in Weiqi"
-description: "Ko is a special rule that prevents the same board position from repeating forever."
+title: "Ko Rule Explained in Weiqi: Beginner Guide"
+description: "Learn how the ko rule works in Weiqi, why it prevents endless repetition, and what beginners should do when a ko appears."
 category: "Cornerstone Guide"
 difficulty: "Beginner"
 readingTime: "8–10 minutes"
 date: "2026-07-01"
-updated: "2026-07-01"
+updated: "2026-07-28"
 slug: "ko-rule-explained-in-weiqi"
 cornerstone: true
 tier: 2

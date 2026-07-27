@@ -5,7 +5,7 @@ category: "Cornerstone Guide"
 difficulty: "Beginner"
 readingTime: "9–11 minutes"
 date: "2026-07-01"
-updated: "2026-07-01"
+updated: "2026-07-28"
 slug: "go-vs-weiqi-vs-baduk"
 cornerstone: true
 ---

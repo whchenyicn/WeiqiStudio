@@ -1,11 +1,11 @@
 ---
-title: "Play Your First Game of Weiqi"
-description: "Ready to play? Learn how to approach your first game of Weiqi with confidence and put everything you've learned into practice."
+title: "How to Play Your First Game of Weiqi"
+description: "Learn how to play your first game of Weiqi, choose the right board size, understand when the game ends, and begin with confidence."
 category: "Beginner Lesson"
 difficulty: "Beginner"
 readingTime: "8–10 minutes"
 date: "2026-07-01"
-updated: "2026-07-01"
+updated: "2026-07-28"
 slug: "play-your-first-game"
 ---
 

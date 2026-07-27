@@ -1,11 +1,11 @@
 ---
 title: "What Are Eyes in Weiqi?"
-description: "Learn what eyes are in Weiqi, why two eyes keep a group alive, and how to recognize one of the game's most important concepts."
+description: "Learn what eyes are in Weiqi, why two true eyes keep a group alive, and how beginners can recognize true and false eyes."
 category: "Beginner Lesson"
 difficulty: "Beginner"
 readingTime: "7–9 minutes"
 date: "2026-07-01"
-updated: "2026-07-01"
+updated: "2026-07-28"
 slug: "eyes-in-weiqi"
 ---
 

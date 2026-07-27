@@ -1,11 +1,11 @@
 ---
 title: "How Does Scoring Work in Weiqi?"
-description: "Learn how scoring works in Weiqi, how territory is counted, and how the winner is decided in a simple beginner-friendly guide."
+description: "Learn how scoring works in Weiqi, how territory and captured stones are counted, and how the winner is decided."
 category: "Beginner Lesson"
 difficulty: "Beginner"
 readingTime: "6–8 minutes"
 date: "2026-07-01"
-updated: "2026-07-01"
+updated: "2026-07-28"
 slug: "scoring-in-weiqi"
 ---
 

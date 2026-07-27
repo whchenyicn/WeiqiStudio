@@ -1,11 +1,11 @@
 ---
 title: "Best Weiqi Books for Beginners"
-description: "This guide will help you choose the best Weiqi books for your current level, so you can learn in the right order without feeling overwhelmed."
+description: "Discover the best Weiqi books for beginners, from introductory lessons to practice problems, and choose the right books for your level."
 category: "Cornerstone Guide"
 difficulty: "Beginner"
 readingTime: "10–12 minutes"
 date: "2026-07-01"
-updated: "2026-07-01"
+updated: "2026-07-28"
 slug: "best-weiqi-books-for-beginners"
 cornerstone: true
 tier: 2

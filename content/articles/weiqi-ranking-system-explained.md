@@ -1,11 +1,11 @@
 ---
-title: "Weiqi Ranking System Explained"
-description: "This guide explains the Weiqi ranking system in simple terms, so you can understand what ranks mean without getting overwhelmed."
+title: "Weiqi Ranking System Explained for Beginners"
+description: "Learn how Weiqi ranks work, including kyu and dan levels, online rankings, professional ranks, and what your first rank means."
 category: "Cornerstone Guide"
 difficulty: "Beginner"
 readingTime: "9–11 minutes"
 date: "2026-07-01"
-updated: "2026-07-01"
+updated: "2026-07-28"
 slug: "weiqi-ranking-system-explained"
 cornerstone: true
 tier: 2

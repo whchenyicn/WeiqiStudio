@@ -1,11 +1,11 @@
 ---
 title: "What Is Territory in Weiqi?"
-description: "Learn what territory means in Weiqi, how it is formed, and why controlling territory—not capturing stones—is the goal of the game."
+description: "Learn what territory means in Weiqi, how players surround it, and why controlling territory is more important than chasing captures."
 category: "Beginner Lesson"
 difficulty: "Beginner"
 readingTime: "7–9 minutes"
 date: "2026-07-01"
-updated: "2026-07-01"
+updated: "2026-07-28"
 slug: "territory-in-weiqi"
 ---
 

@@ -1,11 +1,11 @@
 ---
-title: "How to Capture Stones in Weiqi"
-description: "Learn how to capture stones in Weiqi by removing all of their liberties. A simple beginner-friendly guide with examples and common mistakes."
+title: "How to Capture Stones in Weiqi: Beginner Guide"
+description: "Learn how to capture stones in Weiqi by removing their liberties, with a simple explanation of groups, atari, and common beginner mistakes."
 category: "Beginner Lesson"
 difficulty: "Beginner"
 readingTime: "7–9 minutes"
 date: "2026-07-01"
-updated: "2026-07-01"
+updated: "2026-07-28"
 slug: "how-capturing-works-in-weiqi"
 ---
 

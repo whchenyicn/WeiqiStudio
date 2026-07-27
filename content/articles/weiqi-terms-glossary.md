@@ -1,11 +1,11 @@
 ---
-title: "Weiqi Terms Glossary"
-description: "This glossary explains the most important Weiqi terms in simple beginner-friendly language."
+title: "Weiqi Terms Glossary for Beginners"
+description: "Learn essential Weiqi terms including liberties, atari, eyes, ko, territory, joseki, tesuji, kyu, and dan in simple language."
 category: "Cornerstone Guide"
 difficulty: "Beginner"
 readingTime: "10–12 minutes"
 date: "2026-07-01"
-updated: "2026-07-01"
+updated: "2026-07-28"
 slug: "weiqi-terms-glossary"
 cornerstone: true
 tier: 2

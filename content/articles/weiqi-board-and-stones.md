@@ -1,11 +1,11 @@
 ---
-title: "Board and Stones: Understanding the Weiqi Board"
-description: "Learn the basics of the Weiqi board, black and white stones, board sizes, star points, and how moves are played. A beginner-friendly guide."
+title: "Weiqi Board and Stones: A Beginner’s Guide"
+description: "Learn how the Weiqi board works, where stones are placed, which board sizes beginners should use, and what star points mean."
 category: "Beginner Lesson"
 difficulty: "Beginner"
 readingTime: "6–8 minutes"
 date: "2026-07-01"
-updated: "2026-07-01"
+updated: "2026-07-28"
 slug: "weiqi-board-and-stones"
 ---
 

@@ -1,11 +1,11 @@
 ---
-title: "Best Online Places to Play Weiqi"
-description: "This guide will help you choose the best online place to play Weiqi based on your current level and learning style."
+title: "Best Places to Play Weiqi Online"
+description: "Compare OGS, KGS, GoQuest, Pandanet, Fox, Tygem, and other places to play Weiqi online, with simple recommendations for beginners."
 category: "Cornerstone Guide"
 difficulty: "Beginner"
 readingTime: "10–12 minutes"
 date: "2026-07-01"
-updated: "2026-07-01"
+updated: "2026-07-28"
 slug: "best-online-places-to-play-weiqi"
 cornerstone: true
 tier: 2

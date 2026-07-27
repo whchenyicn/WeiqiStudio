@@ -1,11 +1,11 @@
 ---
-title: "10 Beginner Weiqi Mistakes (And How to Avoid Them)"
-description: "Discover the 10 most common beginner Weiqi mistakes and learn how to avoid them. Improve faster with these simple tips for new players."
+title: "10 Common Beginner Weiqi Mistakes (And How to Avoid Them)"
+description: "Learn the 10 most common beginner Weiqi mistakes and how to avoid them. Fix the habits that hold new Go and Baduk players back."
 category: "Cornerstone Guide"
 difficulty: "Beginner"
 readingTime: "10–12 minutes"
 date: "2026-07-01"
-updated: "2026-07-01"
+updated: "2026-07-28"
 slug: "beginner-weiqi-mistakes"
 cornerstone: true
 ---

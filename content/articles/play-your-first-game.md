@@ -98,6 +98,8 @@ Every mistake teaches you something.
 
 In fact, reviewing your mistakes after each game is one of the fastest ways to improve.
 
+For a simple routine after your first games, read [How to Study Weiqi Effectively as a Beginner](/articles/how-to-study-weiqi-effectively).
+
 Don't judge your progress by whether you win.
 
 Judge it by whether you understand the game a little better than yesterday.

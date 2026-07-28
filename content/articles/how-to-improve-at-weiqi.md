@@ -30,6 +30,8 @@ Even two or three games each week will help you develop better instincts and bec
 
 Consistency matters more than volume.
 
+If you want a simple routine, read [How to Study Weiqi Effectively as a Beginner](/articles/how-to-study-weiqi-effectively).
+
 ## 2. Start on a 9×9 Board
 
 Many beginners rush straight to the standard 19×19 board.

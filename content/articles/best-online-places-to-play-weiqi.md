@@ -363,6 +363,8 @@ Choose one mistake and learn from it.
 
 That is enough.
 
+If you want a fuller beginner routine, read [How to Study Weiqi Effectively as a Beginner](/articles/how-to-study-weiqi-effectively).
+
 ### Play slower than you want to
 
 Fast games are fun, but beginners often improve more from slightly slower games.

@@ -287,6 +287,8 @@ For beginners, two true eyes are usually enough to consider a group alive.
 
 There are advanced exceptions and special shapes, but you do not need to worry about them at first.
 
+One common exception beginners should learn gradually is the [false eye](/articles/what-is-a-false-eye-in-weiqi).
+
 ### Is one eye enough to live?
 
 Usually, no.

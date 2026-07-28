@@ -105,6 +105,8 @@ These are called false eyes.
 
 False eyes often occur when the surrounding stones are not fully connected or when your opponent can still play inside legally.
 
+For a clearer beginner explanation, read [What Is a False Eye in Weiqi?](/articles/what-is-a-false-eye-in-weiqi).
+
 Beginners don't need to master false eyes immediately.
 
 For now, simply remember that not every empty space inside a group guarantees survival.

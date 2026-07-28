@@ -61,7 +61,7 @@ Earlier, you learned that Black always plays first.
 
 Because moving first provides a small advantage, White receives extra points before the game begins.
 
-These bonus points are called komi.
+These bonus points are called [komi](/articles/what-is-komi-in-weiqi).
 
 The exact value depends on the rules being used, but beginners don't need to memorize the number.
 
@@ -197,4 +197,5 @@ In the [final lesson of this beginner course](/articles/play-your-first-game), w
 - [What Is Atari?](/articles/what-is-atari-in-weiqi)
 - [Eyes in Weiqi](/articles/eyes-in-weiqi)
 - [Territory in Weiqi](/articles/territory-in-weiqi)
+- [What Is Komi in Weiqi?](/articles/what-is-komi-in-weiqi)
 - [Play Your First Game](/articles/play-your-first-game)

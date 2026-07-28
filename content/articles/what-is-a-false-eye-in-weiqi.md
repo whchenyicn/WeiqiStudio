@@ -94,6 +94,8 @@ The goal is to make two secure eyes.
 
 If you want to understand how this connects to survival, read [How to Know if a Group Is Alive in Weiqi](/articles/how-to-know-if-a-group-is-alive-in-weiqi).
 
+You can also review [when a group is dead](/articles/when-is-a-group-dead-in-weiqi) to understand why false eyes can be dangerous.
+
 ## Common Situations Where False Eyes Occur
 
 False eyes often appear when stones are almost connected, but not quite.

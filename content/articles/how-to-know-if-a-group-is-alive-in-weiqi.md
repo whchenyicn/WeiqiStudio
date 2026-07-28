@@ -174,6 +174,8 @@ It means you should ask:
 
 If saving a small group costs too much, letting it go may be the stronger move.
 
+For the opposite side of this idea, read [When Is a Group Dead in Weiqi?](/articles/when-is-a-group-dead-in-weiqi).
+
 ## Common Mistakes That Kill Groups
 
 ### Waiting too long to make eyes

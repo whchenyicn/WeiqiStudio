@@ -193,6 +193,8 @@ Sometimes sacrificing a small group allows you to gain more territory elsewhere.
 
 Learning when to save and when to sacrifice is an important strategic skill.
 
+The guide to [dead groups in Weiqi](/articles/when-is-a-group-dead-in-weiqi) explains this idea in more detail.
+
 ### Should I announce "atari" during a game?
 
 In casual beginner games, some players say "atari" to help their opponent learn.

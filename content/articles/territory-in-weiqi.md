@@ -96,6 +96,8 @@ In the center, you need even more.
 
 This simple idea explains many opening moves in Weiqi.
 
+You can learn more in the guide to [why Weiqi players start in the corners](/articles/why-start-in-the-corners-in-weiqi).
+
 ## Territory Changes Throughout the Game
 
 One important lesson for beginners is that territory is not permanent until the game is over.

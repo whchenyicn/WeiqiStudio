@@ -99,6 +99,8 @@ In the center, no edge helps you.
 
 That is why many games begin near the corners.
 
+For a deeper explanation, read [why Weiqi players start in the corners](/articles/why-start-in-the-corners-in-weiqi).
+
 If you want a fuller explanation of the board itself, read [Weiqi Board and Stones](/articles/weiqi-board-and-stones).
 
 ## Why Corners Are Valuable Early

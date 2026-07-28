@@ -73,6 +73,8 @@ Instead, focus on simple principles:
 
 Understanding these ideas will help you much more than memorizing a long sequence.
 
+Later, you can also learn how [sente and gote](/articles/what-are-sente-and-gote-in-weiqi) affect who gets to choose the next important move.
+
 ## Corners, Sides, and Center
 
 To choose a good first move, it helps to understand the three main areas of the board:

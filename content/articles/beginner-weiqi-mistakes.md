@@ -107,6 +107,8 @@ While connection is important, playing too close together wastes valuable space.
 
 Efficient stone placement allows you to build larger frameworks while remaining flexible.
 
+As you improve, understanding [sente and gote](/articles/what-are-sente-and-gote-in-weiqi) can also help you judge whether a move keeps useful initiative or simply spends a move locally.
+
 ### How to improve
 
 Ask yourself:

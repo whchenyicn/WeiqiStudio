@@ -261,4 +261,5 @@ You may enjoy these next guides:
 - [Weiqi vs Chess](/articles/weiqi-vs-chess)
 - [Best Weiqi Books for Beginners](/articles/best-weiqi-books-for-beginners)
 - [Best Online Places to Play Weiqi](/articles/best-online-places-to-play-weiqi)
+- [Where Should You Play Your First Move?](/articles/where-to-play-first-move-in-weiqi)
 - [Weiqi Terms Glossary](/articles/weiqi-terms-glossary)

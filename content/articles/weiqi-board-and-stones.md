@@ -141,7 +141,7 @@ The center is the most open area and usually takes the longest to secure.
 
 This is why many games begin with moves near the corners before expanding outward.
 
-You'll explore this idea in much greater detail in later lessons.
+You can explore this idea in more detail in the guide to [where to play your first move in Weiqi](/articles/where-to-play-first-move-in-weiqi).
 
 ## Common Beginner Mistakes
 

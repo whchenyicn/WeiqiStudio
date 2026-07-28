@@ -152,6 +152,28 @@ This is why beginners should focus on keeping groups connected.
 
 A connected group is usually easier to protect than several small groups scattered across the board.
 
+## When Sacrificing Stones Is Correct
+
+Beginners often feel that every stone must be saved.
+
+That is understandable.
+
+Losing stones feels bad.
+
+But in Weiqi, sacrificing a few stones can sometimes be correct.
+
+If a small group is already weak and saving it would take many moves, you may be better off playing somewhere else.
+
+Sometimes your opponent spends several moves capturing a few stones while you build territory, strengthen another group, or take a larger point.
+
+This does not mean you should give up important groups easily.
+
+It means you should ask:
+
+"Is this group worth saving?"
+
+If saving a small group costs too much, letting it go may be the stronger move.
+
 ## Common Mistakes That Kill Groups
 
 ### Waiting too long to make eyes
@@ -249,6 +271,7 @@ Before moving on, remember these ideas:
 - Two true eyes usually make a group alive.
 - One eye is usually not enough.
 - Connected groups are easier to keep alive.
+- Sometimes sacrificing a small weak group is better than spending too many moves saving it.
 - Beginners often lose groups by waiting too long, getting cut apart, or forgetting liberties.
 - Life and death is not only about solving puzzles. It appears in every real game.
 

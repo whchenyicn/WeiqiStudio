@@ -257,6 +257,7 @@ Ready to continue your journey?
 You may enjoy these next guides:
 
 - [10 Beginner Weiqi Mistakes (Coming Soon)](/articles/beginner-weiqi-mistakes)
+- [Common Beginner Mistakes in Weiqi](/articles/common-beginner-mistakes-in-weiqi)
 - [How to Improve at Weiqi](/articles/how-to-improve-at-weiqi)
 - [Weiqi vs Chess](/articles/weiqi-vs-chess)
 - [Best Weiqi Books for Beginners](/articles/best-weiqi-books-for-beginners)

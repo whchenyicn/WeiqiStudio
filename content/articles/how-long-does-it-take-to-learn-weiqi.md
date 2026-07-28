@@ -231,6 +231,8 @@ A 9×9 board helps beginners finish games quickly and see mistakes clearly.
 
 Once you are comfortable, you can move to 13×13 and eventually 19×19.
 
+If you are unsure which board to use, read the guide to [9x9, 13x13, and 19x19 Weiqi boards](/articles/9x9-vs-13x13-vs-19x19-weiqi-boards).
+
 ### Review your games
 
 Playing gives you experience.

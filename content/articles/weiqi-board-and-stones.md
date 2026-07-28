@@ -43,6 +43,8 @@ Although professional games are almost always played on the standard 19×19 boar
 
 There are three common sizes.
 
+For a deeper comparison, read the guide to [9x9, 13x13, and 19x19 Weiqi boards](/articles/9x9-vs-13x13-vs-19x19-weiqi-boards).
+
 ### 9×9 Board
 
 The best choice for complete beginners.

@@ -166,6 +166,8 @@ Before trying to rescue a weak group, ask:
 
 If the answer is no, it may be time to let the stones go.
 
+If the answer is yes, the guide to [saving weak groups in Weiqi](/articles/how-to-save-a-weak-group-in-weiqi) gives practical next steps.
+
 ## Why Sacrificing Stones Can Be Stronger
 
 Sacrificing stones means giving up some stones on purpose to gain something more valuable.

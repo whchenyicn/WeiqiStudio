@@ -152,6 +152,8 @@ This is why beginners should focus on keeping groups connected.
 
 A connected group is usually easier to protect than several small groups scattered across the board.
 
+For practical rescue ideas, read [How to Save a Weak Group in Weiqi](/articles/how-to-save-a-weak-group-in-weiqi).
+
 ## When Sacrificing Stones Is Correct
 
 Beginners often feel that every stone must be saved.

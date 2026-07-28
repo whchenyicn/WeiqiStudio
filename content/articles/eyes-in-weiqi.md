@@ -87,6 +87,8 @@ As a result, the group remains alive.
 
 This is why players work so hard to create two eyes during a game.
 
+If you want to apply this idea in real games, read the guide to [knowing whether a group is alive](/articles/how-to-know-if-a-group-is-alive-in-weiqi).
+
 > **Future Diagram**
 >
 > A living group with two eyes.

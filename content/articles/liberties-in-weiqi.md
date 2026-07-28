@@ -126,6 +126,8 @@ When you learn [eyes](/articles/eyes-in-weiqi), you'll see how groups create per
 
 When you study life and death, you'll be evaluating whether groups have enough liberties to survive.
 
+You can continue with the beginner guide to [knowing whether a group is alive](/articles/how-to-know-if-a-group-is-alive-in-weiqi).
+
 In other words, liberties are not just one lesson—they are the foundation for many lessons that follow.
 
 ## Common Beginner Mistakes

@@ -67,6 +67,8 @@ Ask:
 
 "Can this group escape, connect, or make eyes?"
 
+If this question feels difficult, read the guide to [knowing whether a group is alive in Weiqi](/articles/how-to-know-if-a-group-is-alive-in-weiqi).
+
 ## 3. Fighting Every Battle
 
 Fighting is exciting.

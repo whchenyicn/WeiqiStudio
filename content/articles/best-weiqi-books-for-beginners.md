@@ -475,6 +475,8 @@ Play games while you study.
 
 Problem solving trains your reading ability.
 
+If you want to practice without choosing paid materials first, read [Should Beginners Solve Tsumego?](/articles/should-beginners-solve-tsumego).
+
 Do not only read explanations.
 
 ### Buying too many books

@@ -309,6 +309,8 @@ Yes.
 
 Start with simple life and death problems that show basic eyes, liberties, and captures.
 
+If you want a beginner-friendly practice routine, read [Should Beginners Solve Tsumego?](/articles/should-beginners-solve-tsumego).
+
 ## Continue Learning
 
 To understand alive groups better, review [eyes](/articles/eyes-in-weiqi), [liberties](/articles/liberties-in-weiqi), and [territory](/articles/territory-in-weiqi).

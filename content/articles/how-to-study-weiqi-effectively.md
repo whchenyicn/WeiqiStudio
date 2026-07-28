@@ -129,6 +129,8 @@ The goal is to build confidence and pattern recognition.
 
 If weak groups are difficult, study [How to Save a Weak Group in Weiqi](/articles/how-to-save-a-weak-group-in-weiqi).
 
+For a focused problem-solving routine, read [Should Beginners Solve Tsumego?](/articles/should-beginners-solve-tsumego).
+
 ## 4. Learning Basic Theory
 
 Theory means learning simple ideas that guide your decisions.

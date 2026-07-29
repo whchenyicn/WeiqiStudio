@@ -164,6 +164,8 @@ Are my stones strong enough to help future moves?
 
 Or do they still need to be defended?
 
+For the related idea of strong, safe stones, read [Thickness vs Territory in Weiqi](/articles/thickness-vs-territory-in-weiqi).
+
 ## Five Beginner Situations Where Influence Is Valuable
 
 Influence can be useful in many simple situations.

@@ -133,6 +133,8 @@ For now, simply remember:
 
 For a beginner-friendly explanation of that second idea, read [What Is Influence in Weiqi?](/articles/what-is-influence-in-weiqi).
 
+You can also compare [thickness and territory](/articles/thickness-vs-territory-in-weiqi) to understand why strong stones can matter even before they score points.
+
 ## Why Capturing Isn't Everything
 
 Capturing stones feels satisfying.

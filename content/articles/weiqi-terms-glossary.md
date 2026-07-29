@@ -301,6 +301,8 @@ Thickness refers to strong stones that are difficult to attack.
 
 Thick positions often create influence and support future play.
 
+For a beginner-friendly comparison, read [Thickness vs Territory in Weiqi](/articles/thickness-vs-territory-in-weiqi).
+
 ---
 
 ### Weak Group

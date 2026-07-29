@@ -256,6 +256,8 @@ Just notice simple moments:
 
 That is enough at first.
 
+This also connects to [when you should tenuki in Weiqi](/articles/when-should-you-tenuki-in-weiqi), because tenuki depends on whether a local move truly needs an answer.
+
 Over time, sente and gote will become easier to feel.
 
 ## Quick Recap

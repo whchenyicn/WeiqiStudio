@@ -220,6 +220,8 @@ If your group still has several liberties, you may have time.
 
 If it has very few, the situation may be urgent.
 
+Before playing elsewhere, review [When Should You Tenuki in Weiqi?](/articles/when-should-you-tenuki-in-weiqi) so you can judge whether your weak group needs attention first.
+
 ### 3. Connect before fighting
 
 If connecting to strong stones solves the problem, do that first.

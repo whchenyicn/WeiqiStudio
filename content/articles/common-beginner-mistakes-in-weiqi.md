@@ -115,6 +115,8 @@ Efficient stones work together without always standing next to each other.
 
 This idea connects to [sente and gote](/articles/what-are-sente-and-gote-in-weiqi), because efficient moves often help you keep the chance to play somewhere important next.
 
+It also connects to [tenuki](/articles/when-should-you-tenuki-in-weiqi), because sometimes the best move is to stop answering locally and play somewhere larger.
+
 ### Simple tip
 
 Ask:

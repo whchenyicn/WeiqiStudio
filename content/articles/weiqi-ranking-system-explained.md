@@ -328,6 +328,8 @@ The handicap system is one reason Weiqi is such a good teaching game.
 
 A beginner and a stronger player can still play an interesting match.
 
+For a fuller beginner explanation, read [What Are Handicap Games in Weiqi?](/articles/what-are-handicap-games-in-weiqi).
+
 ---
 
 ## Common Beginner Confusions

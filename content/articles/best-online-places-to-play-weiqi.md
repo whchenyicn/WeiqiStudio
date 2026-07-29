@@ -317,6 +317,8 @@ Focus on learning:
 
 Once you feel more comfortable, ranked games become more useful.
 
+If you play stronger opponents, you may also want to understand [handicap games](/articles/what-are-handicap-games-in-weiqi).
+
 ---
 
 ## Should You Play Against Bots?

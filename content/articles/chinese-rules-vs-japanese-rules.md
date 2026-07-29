@@ -51,6 +51,8 @@ That is why modern players may talk about Chinese rules, Japanese rules, Korean 
 
 For beginners, the most important difference is scoring.
 
+If you are curious about the handicap part of game setup, read [What Are Handicap Games in Weiqi?](/articles/what-are-handicap-games-in-weiqi).
+
 ## A Brief History
 
 Weiqi began in China.

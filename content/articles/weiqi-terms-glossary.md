@@ -291,6 +291,8 @@ Influence is the potential power of stones across the board.
 
 Influence may not be territory yet, but it can help build future territory or attack weak groups.
 
+For a fuller beginner explanation, read [What Is Influence in Weiqi?](/articles/what-is-influence-in-weiqi).
+
 ---
 
 ### Thickness

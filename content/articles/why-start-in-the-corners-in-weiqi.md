@@ -107,6 +107,8 @@ Stones in the center can connect groups, attack weak stones, and influence many 
 
 But for complete beginners, starting only in the center can feel confusing because it is hard to turn center influence into clear territory.
 
+If you want to understand this idea more clearly, read [What Is Influence in Weiqi?](/articles/what-is-influence-in-weiqi).
+
 That is why the center often becomes more important after corners and sides have developed.
 
 ## Simple Comparison

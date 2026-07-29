@@ -131,6 +131,8 @@ For now, simply remember:
 - Territory scores points today.
 - Influence creates opportunities for tomorrow.
 
+For a beginner-friendly explanation of that second idea, read [What Is Influence in Weiqi?](/articles/what-is-influence-in-weiqi).
+
 ## Why Capturing Isn't Everything
 
 Capturing stones feels satisfying.

@@ -401,6 +401,8 @@ Two or three thoughtful games each week is a good start.
 
 If you can review them afterward, even better.
 
+For a practical weekly routine, read [How Often Should You Play Weiqi to Improve?](/articles/how-often-should-you-play-weiqi).
+
 ### Should I start with 9×9 or 19×19?
 
 Most beginners should start with 9×9.

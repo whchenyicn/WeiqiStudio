@@ -188,6 +188,8 @@ If you have more time, do more.
 
 The best plan is the one you can actually follow.
 
+If your main question is how many games to play, read [How Often Should You Play Weiqi to Improve?](/articles/how-often-should-you-play-weiqi).
+
 ## Why Consistency Matters More Than Intensity
 
 Many beginners feel motivated after discovering Weiqi.

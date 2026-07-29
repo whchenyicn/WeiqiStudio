@@ -32,6 +32,8 @@ Consistency matters more than volume.
 
 If you want a simple routine, read [How to Study Weiqi Effectively as a Beginner](/articles/how-to-study-weiqi-effectively).
 
+For more detail on practice frequency, read [How Often Should You Play Weiqi to Improve?](/articles/how-often-should-you-play-weiqi).
+
 ## 2. Start on a 9×9 Board
 
 Many beginners rush straight to the standard 19×19 board.

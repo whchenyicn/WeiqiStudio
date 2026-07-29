@@ -192,6 +192,8 @@ The best plan is the one you can actually follow.
 
 If your main question is how many games to play, read [How Often Should You Play Weiqi to Improve?](/articles/how-often-should-you-play-weiqi).
 
+If you want tools for games, tsumego, lessons, or review, read [Best Weiqi Apps for Beginners](/articles/best-weiqi-apps-for-beginners).
+
 ## Why Consistency Matters More Than Intensity
 
 Many beginners feel motivated after discovering Weiqi.

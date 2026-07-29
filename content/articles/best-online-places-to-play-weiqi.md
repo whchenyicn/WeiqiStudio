@@ -209,6 +209,8 @@ If you still feel unsure about the rules, it may be better to spend a little tim
 
 Platforms and apps focused on lessons, puzzles, or guided practice can help you understand the basics before you play real opponents.
 
+For a broader comparison of learning and playing tools, read [Best Weiqi Apps for Beginners](/articles/best-weiqi-apps-for-beginners).
+
 Look for resources that teach:
 
 - Board and stones

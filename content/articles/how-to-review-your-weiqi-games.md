@@ -201,6 +201,8 @@ If you want a gentle problem-solving routine, read [Should Beginners Solve Tsume
 
 If you want to know how often to play, read [How Often Should You Play Weiqi to Improve?](/articles/how-often-should-you-play-weiqi).
 
+If you are choosing tools for games or AI review, read [Best Weiqi Apps for Beginners](/articles/best-weiqi-apps-for-beginners).
+
 ## Common Review Mistakes Beginners Make
 
 ### Reviewing only wins

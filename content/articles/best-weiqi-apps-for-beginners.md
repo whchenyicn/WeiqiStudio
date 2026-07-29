@@ -41,6 +41,8 @@ For beginners, this matters because consistency is more important than long stud
 
 If you are building a study routine, read [How to Study Weiqi Effectively as a Beginner](/articles/how-to-study-weiqi-effectively).
 
+If you are still choosing what to learn first, the [complete beginner guide](/articles/beginner-guide-to-weiqi) gives a simple order before you pick apps.
+
 ## Different Types of Weiqi Apps
 
 Not all apps do the same job.

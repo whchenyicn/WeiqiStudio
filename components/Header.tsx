@@ -3,7 +3,7 @@ import Link from 'next/link'
 const nav = [
   { href: '/', label: 'Home' },
   { href: '/articles/beginner-guide-to-weiqi', label: 'Beginner Guide' },
-  { href: '/articles', label: 'Articles' },
+  { href: '/articles', label: 'Learning Library' },
 ]
 
 export function Header() {

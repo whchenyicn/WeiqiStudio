@@ -27,6 +27,8 @@ The goal is to notice common patterns and improve one step at a time.
 
 If you have not played yet, start with [How to Play Your First Game of Weiqi](/articles/play-your-first-game). Then return to this guide after a few games.
 
+For the full sequence of lessons before and after your first games, use the [beginner Weiqi roadmap](/articles/beginner-guide-to-weiqi).
+
 ## 1. Playing Only in One Area of the Board
 
 Beginners often become focused on one small fight.

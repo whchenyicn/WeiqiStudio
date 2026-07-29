@@ -19,6 +19,8 @@ Every move changes the board forever. Every decision creates new opportunities w
 
 Whether you know it as Weiqi, Go, or Baduk, this guide will introduce the game, explain why it has fascinated players for more than 2,500 years, and show you where to begin your learning journey.
 
+If you want the broader path after this introduction, use the [complete beginner guide](/articles/beginner-guide-to-weiqi) as your main roadmap through the Weiqi Studio lessons.
+
 ## Why Is It Called Weiqi, Go, and Baduk?
 
 If you're new to the game, you may have noticed that it has several different names.
@@ -353,7 +355,7 @@ If you'd like to explore more before moving on, these guides are a great place t
 - [What Are Liberties in Weiqi?](/articles/liberties-in-weiqi)
 - [How to Capture Stones in Weiqi](/articles/how-capturing-works-in-weiqi)
 - [What Is Atari?](/articles/what-is-atari-in-weiqi)
-- [Why Weiqi Is Called the Game of Life](/articles/why-weiqi-is-called-the-game-of-life)
+- [The Complete Beginner's Guide to Weiqi](/articles/beginner-guide-to-weiqi)
 - [10 Beginner Weiqi Mistakes (and How to Avoid Them)](/articles/beginner-weiqi-mistakes)
 
 ## Final Thoughts

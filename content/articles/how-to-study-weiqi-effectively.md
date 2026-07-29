@@ -49,6 +49,8 @@ Study helps you understand that experience.
 
 If you have not played yet, begin with [How to Play Your First Game of Weiqi](/articles/play-your-first-game).
 
+If you want a wider roadmap before choosing a study routine, start with the [complete guide for new players](/articles/beginner-guide-to-weiqi).
+
 ## The Four Pillars of Improvement
 
 Beginner Weiqi study is easier when you think in four parts:

@@ -13,6 +13,8 @@ Congratulations!
 
 You've reached the final lesson of the [beginner course](/articles/what-is-weiqi).
 
+If you want to see how this lesson fits into the full path, return to the [step-by-step Weiqi learning path](/articles/beginner-guide-to-weiqi).
+
 Over the past lessons, you've learned the essential building blocks of Weiqi:
 
 - [The board and stones](/articles/weiqi-board-and-stones)
@@ -262,6 +264,7 @@ Ready to continue your journey?
 
 You may enjoy these next guides:
 
+- [The Complete Beginner's Guide to Weiqi](/articles/beginner-guide-to-weiqi)
 - [10 Beginner Weiqi Mistakes (Coming Soon)](/articles/beginner-weiqi-mistakes)
 - [Common Beginner Mistakes in Weiqi](/articles/common-beginner-mistakes-in-weiqi)
 - [How to Improve at Weiqi](/articles/how-to-improve-at-weiqi)

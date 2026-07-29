@@ -32,7 +32,7 @@ export default async function HomePage() {
 
             <div className="mt-10 flex flex-col items-start gap-5 sm:flex-row sm:items-center">
               <Link
-                href="/articles/what-is-weiqi"
+                href="/articles/beginner-guide-to-weiqi"
                 className="group inline-flex min-h-12 items-center gap-8 rounded-full bg-[#123c2b] px-6 py-3 text-sm font-semibold !text-white shadow-[0_12px_30px_-14px_rgba(6,78,59,0.8)] transition duration-300 hover:-translate-y-0.5 hover:bg-[#0d3022] focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-emerald-800"
               >
                 Start Learning
@@ -42,7 +42,7 @@ export default async function HomePage() {
                 href="/articles"
                 className="group inline-flex items-center gap-3 px-2 py-3 text-sm font-semibold text-stone-700 transition-colors hover:text-emerald-900 focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-emerald-800"
               >
-                Browse Articles
+                Browse Library
                 <span aria-hidden="true" className="transition-transform duration-300 group-hover:translate-x-1">→</span>
               </Link>
             </div>
@@ -69,7 +69,7 @@ export default async function HomePage() {
       <section className="mx-auto max-w-7xl px-5 py-20 sm:px-8 lg:px-10" aria-labelledby="continue-exploring-title">
         <div className="mb-8 flex items-end justify-between gap-6">
           <div><p className="mb-2 text-xs font-semibold uppercase tracking-[0.18em] text-emerald-800">Keep learning</p><h2 id="continue-exploring-title" className="text-2xl font-semibold tracking-tight text-stone-950 sm:text-3xl">Continue Exploring</h2></div>
-          <Link href="/articles" className="hidden text-sm font-semibold text-emerald-900 hover:text-emerald-700 sm:block">View all guides &rarr;</Link>
+          <Link href="/articles" className="hidden text-sm font-semibold text-emerald-900 hover:text-emerald-700 sm:block">View learning library &rarr;</Link>
         </div>
         <div className="grid gap-3 md:grid-cols-2">
           {articles.slice(3).map((article) => <Link key={article.slug} href={`/articles/${article.slug}`} className="group flex items-center justify-between gap-5 rounded-2xl border border-stone-200 bg-white p-5 transition hover:border-emerald-900/20 hover:shadow-sm"><div><p className="mb-1.5 text-[11px] font-semibold uppercase tracking-[0.12em] text-emerald-800">{article.category}</p><h3 className="font-semibold tracking-tight text-stone-950">{article.title}</h3></div><span aria-hidden="true" className="shrink-0 text-stone-400 transition group-hover:translate-x-1 group-hover:text-emerald-900">&rarr;</span></Link>)}

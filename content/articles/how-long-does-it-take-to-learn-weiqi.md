@@ -40,6 +40,8 @@ Each stage takes a different amount of time.
 
 This guide will give you a realistic beginner timeline.
 
+For the actual lesson order, use the [beginner Weiqi roadmap](/articles/beginner-guide-to-weiqi) alongside this timeline.
+
 ## The Short Answer
 
 Here is a simple overview.
@@ -429,7 +431,7 @@ It improves with practice, review, and experience.
 
 ## Continue Learning
 
-If you are just starting, follow the complete beginner course:
+If you are just starting, follow the [complete beginner guide](/articles/beginner-guide-to-weiqi) or move through the core course below:
 
 1. [What Is Weiqi?](/articles/what-is-weiqi)
 2. [Board and Stones](/articles/weiqi-board-and-stones)

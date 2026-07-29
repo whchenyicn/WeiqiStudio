@@ -22,7 +22,7 @@ export function LessonHero({ title, description, category, date, readingTime }: 
         <nav aria-label="Breadcrumb" className="mb-9 flex flex-wrap items-center gap-2 text-xs font-medium text-stone-500">
           <Link href="/" className="transition-colors hover:text-emerald-900">Home</Link>
           <span aria-hidden="true" className="text-stone-300">/</span>
-          <Link href="/articles" className="transition-colors hover:text-emerald-900">Lessons</Link>
+          <Link href="/articles" className="transition-colors hover:text-emerald-900">Learning Library</Link>
           <span aria-hidden="true" className="text-stone-300">/</span>
           <span aria-current="page" className="max-w-[18rem] truncate text-stone-700">{title}</span>
         </nav>

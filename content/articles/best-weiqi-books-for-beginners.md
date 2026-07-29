@@ -29,6 +29,8 @@ Some assume you already understand basic tactics. Some use older language. Some 
 
 This guide will help you choose the best Weiqi books for your current level, so you can learn in the right order without feeling overwhelmed.
 
+For a free lesson path before choosing books, use the [complete beginner guide](/articles/beginner-guide-to-weiqi).
+
 ---
 
 ## Quick Recommendation

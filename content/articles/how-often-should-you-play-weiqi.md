@@ -39,6 +39,8 @@ A beginner who plays three calm games, reviews simple mistakes, and studies a li
 
 If you have not played yet, start with [How to Play Your First Game of Weiqi](/articles/play-your-first-game).
 
+If you are still at the very beginning, the [complete beginner guide](/articles/beginner-guide-to-weiqi) will show you what to learn before building a practice schedule.
+
 ## Consistency Beats Marathon Sessions
 
 Weiqi rewards repeated contact.

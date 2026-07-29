@@ -18,6 +18,8 @@ Instead, improvement comes from building good habits.
 
 If you're just starting your Weiqi journey, these ten practical tips will help you learn faster, avoid common frustrations, and enjoy the game even more.
 
+If you want the full lesson order first, begin with the [step-by-step Weiqi learning path](/articles/beginner-guide-to-weiqi).
+
 ## 1. Play Regularly
 
 The simplest way to improve is also the most effective.
@@ -220,7 +222,7 @@ Explore these beginner-friendly guides:
 - [Best Online Places to Play Weiqi](/articles/best-online-places-to-play-weiqi)
 - [Best Weiqi Books for Beginners](/articles/best-weiqi-books-for-beginners)
 
-Or return to the [Beginner Course](/articles/what-is-weiqi) if you'd like to strengthen your understanding of the fundamentals.
+Or return to the [complete beginner guide](/articles/beginner-guide-to-weiqi) if you'd like to strengthen your understanding of the fundamentals.
 
 ## Related Articles
 

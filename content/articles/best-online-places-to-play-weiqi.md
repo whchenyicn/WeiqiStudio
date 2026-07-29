@@ -29,6 +29,8 @@ Some have stronger communities, while others feel more competitive or difficult 
 
 This guide will help you choose the best online place to play Weiqi based on your current level and learning style.
 
+If you have not learned the rules yet, start with the [complete guide for new players](/articles/beginner-guide-to-weiqi) before choosing where to play.
+
 ---
 
 ## Quick Recommendation

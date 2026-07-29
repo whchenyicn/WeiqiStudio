@@ -104,6 +104,8 @@ You do not need a perfect review.
 
 You only need one useful lesson from each game.
 
+For a beginner-friendly review checklist, read [How to Review Your Weiqi Games and Improve Faster](/articles/how-to-review-your-weiqi-games).
+
 ## Why Too Many Blitz Games Can Slow Improvement
 
 Fast games are fun.

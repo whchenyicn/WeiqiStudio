@@ -106,6 +106,8 @@ Try to avoid it next time.
 
 If you keep repeating the same habits, review [Common Beginner Mistakes in Weiqi](/articles/common-beginner-mistakes-in-weiqi).
 
+For a simple review process, read [How to Review Your Weiqi Games and Improve Faster](/articles/how-to-review-your-weiqi-games).
+
 ## 3. Solving Problems
 
 Problems help you practice seeing small situations clearly.

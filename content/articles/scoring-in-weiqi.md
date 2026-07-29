@@ -120,6 +120,8 @@ For now, don't worry about the small differences.
 
 Focus on understanding the game itself.
 
+If you want the beginner-friendly version of those differences, read [Chinese Rules vs Japanese Rules in Weiqi](/articles/chinese-rules-vs-japanese-rules).
+
 ## Common Beginner Mistakes
 
 ### Counting before the game is finished

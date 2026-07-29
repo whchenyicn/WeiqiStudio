@@ -223,6 +223,8 @@ Look for resources that teach:
 
 Once those concepts feel familiar, online games become much less confusing.
 
+If the server asks you to choose a ruleset, read [Chinese Rules vs Japanese Rules in Weiqi](/articles/chinese-rules-vs-japanese-rules) for a simple explanation.
+
 At Weiqi Studio, we recommend completing the beginner course before playing too many ranked games.
 
 ---

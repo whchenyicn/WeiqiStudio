@@ -230,6 +230,8 @@ Reviewing your own games is one of the fastest ways to identify mistakes and dis
 
 Once you're comfortable with the basic rules and can consistently finish 9×9 games, you'll be ready to explore larger boards.
 
+If you later see different online rulesets, read [Chinese Rules vs Japanese Rules in Weiqi](/articles/chinese-rules-vs-japanese-rules).
+
 There's no fixed timeline.
 
 Everyone learns at their own pace.

@@ -4,6 +4,20 @@ export const metadata: Metadata = {
   title: 'About Weiqi Studio',
   description:
     'Learn about Weiqi Studio, a beginner-focused resource for learning Weiqi, Go, and Baduk through clear lessons and practical guides.',
+  alternates: {
+    canonical: '/about',
+  },
+  openGraph: {
+    title: 'About Weiqi Studio',
+    description:
+      'Learn about Weiqi Studio, a beginner-focused resource for learning Weiqi, Go, and Baduk through clear lessons and practical guides.',
+    url: '/about',
+  },
+  twitter: {
+    title: 'About Weiqi Studio',
+    description:
+      'Learn about Weiqi Studio, a beginner-focused resource for learning Weiqi, Go, and Baduk through clear lessons and practical guides.',
+  },
 }
 
 const resources = [

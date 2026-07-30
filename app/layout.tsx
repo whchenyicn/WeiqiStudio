@@ -10,6 +10,15 @@ export const metadata: Metadata = {
   },
   description: 'A beginner-friendly Weiqi learning site with rules, lessons, strategy, glossary pages, and practical examples.',
   metadataBase: new URL('https://weiqi-studio.vercel.app'),
+  openGraph: {
+    siteName: 'Weiqi Studio',
+    type: 'website',
+    locale: 'en',
+  },
+  twitter: {
+    card: 'summary',
+    site: 'Weiqi Studio',
+  },
   verification: {
     google: 'YBkfUp8jyY6rTazyWZ0wACThKFiz0l3sJWAtZ2jWoF4',
   },

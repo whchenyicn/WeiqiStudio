@@ -1,8 +1,26 @@
 import Link from 'next/link'
+import type { Metadata } from 'next'
 import { getAllArticles } from '@/lib/articles'
 import { LearningRoadmap } from '@/components/LearningRoadmap'
 import { TopicCards } from '@/components/TopicCards'
 import { FeaturedArticles } from '@/components/FeaturedArticles'
+
+export const metadata: Metadata = {
+  alternates: {
+    canonical: '/',
+  },
+  openGraph: {
+    title: 'Weiqi Studio | Beginner Go Lessons',
+    description:
+      'A beginner-friendly Weiqi learning site with rules, lessons, strategy, glossary pages, and practical examples.',
+    url: '/',
+  },
+  twitter: {
+    title: 'Weiqi Studio | Beginner Go Lessons',
+    description:
+      'A beginner-friendly Weiqi learning site with rules, lessons, strategy, glossary pages, and practical examples.',
+  },
+}
 
 export default async function HomePage() {
   const articles = await getAllArticles()

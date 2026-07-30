@@ -13,6 +13,9 @@ export type ArticleMeta = {
   description: string
   category: string
   date: string
+  updated: string
+  difficulty: string
+  readingTime: string
 }
 
 export async function getAllArticles(): Promise<ArticleMeta[]> {
@@ -30,6 +33,9 @@ export async function getAllArticles(): Promise<ArticleMeta[]> {
         description: data.description,
         category: data.category,
         date: data.date,
+        updated: data.updated ?? data.date,
+        difficulty: data.difficulty ?? 'Beginner',
+        readingTime: data.readingTime ?? '',
       }
     })
     .sort((a, b) => (a.date < b.date ? 1 : -1))
@@ -47,6 +53,9 @@ export async function getArticleBySlug(slug: string) {
     description: data.description,
     category: data.category,
     date: data.date,
+    updated: data.updated ?? data.date,
+    difficulty: data.difficulty ?? 'Beginner',
+    readingTime: data.readingTime ?? '',
     contentHtml: processedContent.toString(),
   }
 }

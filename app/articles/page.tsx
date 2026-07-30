@@ -6,6 +6,20 @@ export const metadata: Metadata = {
   title: 'Weiqi Learning Library',
   description:
     'Browse the structured Weiqi Studio learning library with beginner lessons, rules, strategy, life and death, study guides, and resources.',
+  alternates: {
+    canonical: '/articles',
+  },
+  openGraph: {
+    title: 'Weiqi Learning Library',
+    description:
+      'Browse the structured Weiqi Studio learning library with beginner lessons, rules, strategy, life and death, study guides, and resources.',
+    url: '/articles',
+  },
+  twitter: {
+    title: 'Weiqi Learning Library',
+    description:
+      'Browse the structured Weiqi Studio learning library with beginner lessons, rules, strategy, life and death, study guides, and resources.',
+  },
 }
 
 const beginnerGuideSlug = 'beginner-guide-to-weiqi'

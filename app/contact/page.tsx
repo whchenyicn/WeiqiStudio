@@ -4,6 +4,20 @@ export const metadata: Metadata = {
   title: 'Contact Weiqi Studio',
   description:
     'Contact Weiqi Studio with questions, corrections, topic suggestions, website feedback, or collaboration inquiries.',
+  alternates: {
+    canonical: '/contact',
+  },
+  openGraph: {
+    title: 'Contact Weiqi Studio',
+    description:
+      'Contact Weiqi Studio with questions, corrections, topic suggestions, website feedback, or collaboration inquiries.',
+    url: '/contact',
+  },
+  twitter: {
+    title: 'Contact Weiqi Studio',
+    description:
+      'Contact Weiqi Studio with questions, corrections, topic suggestions, website feedback, or collaboration inquiries.',
+  },
 }
 
 const feedbackTopics = [

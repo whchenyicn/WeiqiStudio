@@ -4,6 +4,20 @@ export const metadata: Metadata = {
   title: 'Privacy Policy',
   description:
     'Read the Weiqi Studio Privacy Policy to understand what information may be collected and how it may be used.',
+  alternates: {
+    canonical: '/privacy-policy',
+  },
+  openGraph: {
+    title: 'Privacy Policy',
+    description:
+      'Read the Weiqi Studio Privacy Policy to understand what information may be collected and how it may be used.',
+    url: '/privacy-policy',
+  },
+  twitter: {
+    title: 'Privacy Policy',
+    description:
+      'Read the Weiqi Studio Privacy Policy to understand what information may be collected and how it may be used.',
+  },
 }
 
 const collectedInformation = [

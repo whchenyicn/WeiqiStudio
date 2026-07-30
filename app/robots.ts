@@ -6,7 +6,6 @@ export default function robots(): MetadataRoute.Robots {
       userAgent: '*',
       allow: '/',
     },
-    host: 'https://weiqi-studio.vercel.app',
     sitemap: 'https://weiqi-studio.vercel.app/sitemap.xml',
   }
 }

@@ -4,6 +4,7 @@ const nav = [
   { href: '/', label: 'Home' },
   { href: '/articles/beginner-guide-to-weiqi', label: 'Beginner Guide' },
   { href: '/articles', label: 'Learning Library' },
+  { href: '/training', label: 'Training' },
 ]
 
 export function Header() {

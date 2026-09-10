@@ -1,7 +1,15 @@
 'use client'
 
 import { useMemo, useState } from 'react'
-import { getPuzzleById, type BoardPoint, type GoPuzzleData, type StoneColor } from '@/lib/puzzles'
+import {
+  getPuzzleById,
+  getPuzzleSteps,
+  validatePuzzleDefinition,
+  type BoardPoint,
+  type GoPuzzleData,
+  type PuzzleStone,
+  type StoneColor,
+} from '@/lib/puzzles'
 
 type GoPuzzleProps = {
   puzzleId: string
@@ -25,13 +33,23 @@ function getStoneName(color: StoneColor) {
   return color === 'black' ? 'Black' : 'White'
 }
 
+function getOpponentColor(color: StoneColor): StoneColor {
+  return color === 'black' ? 'white' : 'black'
+}
+
 function PuzzleBoard({ puzzle }: { puzzle: GoPuzzleData }) {
   const [selectedPoint, setSelectedPoint] = useState<BoardPoint | null>(null)
-  const [result, setResult] = useState<'correct' | 'incorrect' | null>(null)
+  const [result, setResult] = useState<'correct' | 'incorrect' | 'complete' | null>(null)
+  const [currentStepIndex, setCurrentStepIndex] = useState(0)
+  const [playedStones, setPlayedStones] = useState<PuzzleStone[]>([])
+  const [feedbackMessage, setFeedbackMessage] = useState<string | null>(null)
+  const steps = useMemo(() => getPuzzleSteps(puzzle), [puzzle])
+  const currentStep = steps[currentStepIndex]
+  const isComplete = result === 'complete'
 
   const stoneMap = useMemo(() => {
-    return new Map(puzzle.stones.map((stone) => [pointKey(stone), stone]))
-  }, [puzzle.stones])
+    return new Map([...puzzle.stones, ...playedStones].map((stone) => [pointKey(stone), stone]))
+  }, [playedStones, puzzle.stones])
 
   const points = useMemo(() => {
     return Array.from({ length: puzzle.boardSize * puzzle.boardSize }, (_, index) => ({
@@ -41,15 +59,51 @@ function PuzzleBoard({ puzzle }: { puzzle: GoPuzzleData }) {
   }, [puzzle.boardSize])
 
   function handlePointClick(point: BoardPoint) {
-    if (stoneMap.has(pointKey(point))) return
+    if (stoneMap.has(pointKey(point)) || !currentStep || isComplete) return
 
     setSelectedPoint(point)
-    setResult(puzzle.solutions.some((solution) => samePoint(solution, point)) ? 'correct' : 'incorrect')
+    setFeedbackMessage(null)
+
+    const isCorrect = currentStep.solutions.some((solution) => samePoint(solution, point))
+
+    if (!isCorrect) {
+      setFeedbackMessage(puzzle.failureMessage)
+      setResult('incorrect')
+      return
+    }
+
+    const nextPlayedStones: PuzzleStone[] = [...playedStones, { ...point, color: puzzle.toPlay }]
+
+    if (currentStep.opponentReply) {
+      nextPlayedStones.push({
+        x: currentStep.opponentReply.x,
+        y: currentStep.opponentReply.y,
+        color: currentStep.opponentReply.color ?? getOpponentColor(puzzle.toPlay),
+      })
+    }
+
+    const nextFeedback = currentStep.opponentReply?.message
+      ? `${currentStep.successMessage} ${currentStep.opponentReply.message}`
+      : currentStep.successMessage
+
+    setPlayedStones(nextPlayedStones)
+    setFeedbackMessage(currentStepIndex >= steps.length - 1 ? puzzle.successMessage : nextFeedback)
+
+    if (currentStepIndex >= steps.length - 1) {
+      setResult('complete')
+      return
+    }
+
+    setResult('correct')
+    setCurrentStepIndex((index) => index + 1)
   }
 
   function resetPuzzle() {
     setSelectedPoint(null)
     setResult(null)
+    setCurrentStepIndex(0)
+    setPlayedStones([])
+    setFeedbackMessage(null)
   }
 
   return (
@@ -74,7 +128,7 @@ function PuzzleBoard({ puzzle }: { puzzle: GoPuzzleData }) {
             const key = pointKey(point)
             const stone = stoneMap.get(key)
             const isSelected = selectedPoint ? samePoint(selectedPoint, point) : false
-            const isSolution = result === 'incorrect' && puzzle.solutions.some((solution) => samePoint(solution, point))
+            const isSolution = result === 'incorrect' && currentStep.solutions.some((solution) => samePoint(solution, point))
             const canPlay = !stone
 
             return (
@@ -99,6 +153,8 @@ function PuzzleBoard({ puzzle }: { puzzle: GoPuzzleData }) {
                     className={`h-7 w-7 rounded-full border-2 sm:h-9 sm:w-9 ${
                       result === 'correct'
                         ? 'border-emerald-950 bg-emerald-950/15'
+                        : result === 'complete'
+                        ? 'border-emerald-950 bg-emerald-950/15'
                         : 'border-red-900/70 bg-red-900/10'
                     }`}
                   />
@@ -115,7 +171,7 @@ function PuzzleBoard({ puzzle }: { puzzle: GoPuzzleData }) {
 
       <div
         className={`mt-5 rounded-2xl border px-4 py-3 text-sm leading-6 ${
-          result === 'correct'
+          result === 'correct' || result === 'complete'
             ? 'border-emerald-900/15 bg-emerald-950/[0.04] text-emerald-950'
             : result === 'incorrect'
               ? 'border-red-900/15 bg-red-950/[0.04] text-red-950'
@@ -123,11 +179,13 @@ function PuzzleBoard({ puzzle }: { puzzle: GoPuzzleData }) {
         }`}
         aria-live="polite"
       >
-        {result === 'correct'
-          ? puzzle.successMessage
+        {result === 'complete'
+          ? feedbackMessage ?? puzzle.successMessage
+          : result === 'correct'
+            ? feedbackMessage ?? puzzle.successMessage
           : result === 'incorrect'
-            ? puzzle.failureMessage
-            : puzzle.lessonNote}
+            ? feedbackMessage ?? puzzle.failureMessage
+            : currentStep?.prompt ?? puzzle.lessonNote}
       </div>
 
       <div className="mt-4 flex flex-wrap items-center gap-3">
@@ -139,7 +197,7 @@ function PuzzleBoard({ puzzle }: { puzzle: GoPuzzleData }) {
           Reset puzzle
         </button>
         <p className="text-xs font-medium text-stone-500">
-          {getStoneName(puzzle.toPlay)} to play
+          {isComplete ? 'Puzzle complete' : `${getStoneName(puzzle.toPlay)} to play · Step ${currentStepIndex + 1} of ${steps.length}`}
         </p>
       </div>
     </div>
@@ -157,6 +215,21 @@ export function GoPuzzle({ puzzleId }: GoPuzzleProps) {
     )
   }
 
+  const validationErrors = validatePuzzleDefinition(puzzle)
+
+  if (validationErrors.length > 0) {
+    return (
+      <div className="rounded-2xl border border-red-900/15 bg-red-950/[0.04] p-5 text-sm text-red-950">
+        <p className="font-semibold">Puzzle definition error: {puzzleId}</p>
+        <ul className="mt-2 list-disc space-y-1 pl-5">
+          {validationErrors.map((error) => (
+            <li key={error}>{error}</li>
+          ))}
+        </ul>
+      </div>
+    )
+  }
+
   return (
     <section className="rounded-[2rem] bg-white p-5 shadow-[0_18px_60px_-48px_rgba(28,25,23,0.55)] ring-1 ring-stone-900/[0.06] sm:p-6">
       <div className="mb-5">
@@ -167,6 +240,9 @@ export function GoPuzzle({ puzzleId }: GoPuzzleProps) {
         <p className="mt-2 text-sm leading-6 text-stone-600">{puzzle.description}</p>
         <div className="mt-4 flex flex-wrap gap-2 text-[11px] font-semibold uppercase tracking-[0.12em]">
           <span className="rounded-full bg-[#f4f4ef] px-3 py-1.5 text-stone-600">{puzzle.difficulty}</span>
+          {puzzle.category ? (
+            <span className="rounded-full bg-[#f4f4ef] px-3 py-1.5 text-stone-600">{puzzle.category}</span>
+          ) : null}
           <span className="rounded-full bg-emerald-950 px-3 py-1.5 text-white">{getStoneName(puzzle.toPlay)} to play</span>
         </div>
       </div>

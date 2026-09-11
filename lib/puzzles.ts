@@ -5,6 +5,13 @@ export type BoardPoint = {
   y: number
 }
 
+export type BoardViewport = {
+  xStart: number
+  yStart: number
+  width: number
+  height: number
+}
+
 export type PuzzleStone = BoardPoint & {
   color: StoneColor
 }
@@ -21,6 +28,17 @@ export type PuzzleStep = {
   opponentReply?: PuzzleReply
 }
 
+export type ParsedSgfMove = BoardPoint & {
+  color: StoneColor
+}
+
+export type ParsedSgfPuzzle = {
+  boardSize: number
+  toPlay: StoneColor
+  stones: PuzzleStone[]
+  moves: ParsedSgfMove[]
+}
+
 export type GoPuzzleData = {
   id: string
   title: string
@@ -34,12 +52,39 @@ export type GoPuzzleData = {
   stones: PuzzleStone[]
   solutions: BoardPoint[]
   steps?: PuzzleStep[]
+  sgf?: string
+  viewport?: BoardViewport
   successMessage: string
   failureMessage: string
   lessonNote: string
 }
 
+const topRightCornerViewport: BoardViewport = {
+  xStart: 10,
+  yStart: 0,
+  width: 9,
+  height: 9,
+}
+
 export const puzzles: GoPuzzleData[] = [
+  {
+    id: 'sgf-atari-corner-001',
+    title: 'Corner Atari Sequence',
+    description: 'Black to play on a cropped corner of a full 19×19 board. Follow the forcing sequence.',
+    boardSize: 19,
+    toPlay: 'black',
+    objective: 'Use the SGF sequence to put White under pressure, then continue after White replies.',
+    difficulty: 'Beginner',
+    category: 'Atari',
+    tags: ['sgf', 'atari', 'corner', 'sequence'],
+    stones: [],
+    solutions: [],
+    sgf: '(;SZ[19]PL[B]AB[qc][pd]AW[qd];B[rd];W[qe];B[re])',
+    viewport: topRightCornerViewport,
+    successMessage: 'Correct. You completed the SGF sequence and kept pressure in the corner.',
+    failureMessage: 'Not quite. Stay inside the corner shape and follow the forcing moves.',
+    lessonNote: 'This puzzle uses a full 19×19 SGF position, but only the relevant 9×9 corner is shown.',
+  },
   {
     id: 'atari-001',
     title: 'Find the Atari',
@@ -146,15 +191,105 @@ export function getPuzzleById(id: string) {
   return puzzles.find((puzzle) => puzzle.id === id)
 }
 
-function pointKey(point: BoardPoint) {
+export function pointKey(point: BoardPoint) {
   return `${point.x}-${point.y}`
 }
 
-function isPointOnBoard(point: BoardPoint, boardSize: number) {
+function sgfColorToStoneColor(color: string): StoneColor {
+  return color === 'W' ? 'white' : 'black'
+}
+
+function stoneColorToSgfColor(color: StoneColor) {
+  return color === 'white' ? 'W' : 'B'
+}
+
+function sgfPointToBoardPoint(value: string): BoardPoint {
+  return {
+    x: value.charCodeAt(0) - 97,
+    y: value.charCodeAt(1) - 97,
+  }
+}
+
+function getSgfPropertyValues(sgf: string, property: string) {
+  const match = sgf.match(new RegExp(`${property}((?:\\[[a-z]{2}\\])+)`))
+  if (!match) return []
+
+  return Array.from(match[1].matchAll(/\[([a-z]{2})\]/g), (valueMatch) => valueMatch[1])
+}
+
+export function parseSgfPuzzle(sgf: string): ParsedSgfPuzzle {
+  const sizeMatch = sgf.match(/SZ\[(\d+)\]/)
+  const playerMatch = sgf.match(/PL\[([BW])\]/)
+  const boardSize = sizeMatch ? Number(sizeMatch[1]) : 19
+  const toPlay = playerMatch ? sgfColorToStoneColor(playerMatch[1]) : 'black'
+  const setupBlack = getSgfPropertyValues(sgf, 'AB').map((value) => ({
+    ...sgfPointToBoardPoint(value),
+    color: 'black' as const,
+  }))
+  const setupWhite = getSgfPropertyValues(sgf, 'AW').map((value) => ({
+    ...sgfPointToBoardPoint(value),
+    color: 'white' as const,
+  }))
+  const setupEndIndex = sgf.search(/;[BW]\[[a-z]{2}\]/)
+  const moveSource = setupEndIndex === -1 ? '' : sgf.slice(setupEndIndex)
+  const moves = Array.from(moveSource.matchAll(/;([BW])\[([a-z]{2})\]/g), (match) => ({
+    ...sgfPointToBoardPoint(match[2]),
+    color: sgfColorToStoneColor(match[1]),
+  }))
+
+  return {
+    boardSize,
+    toPlay,
+    stones: [...setupBlack, ...setupWhite],
+    moves,
+  }
+}
+
+export function isPointOnBoard(point: BoardPoint, boardSize: number) {
   return point.x >= 0 && point.x < boardSize && point.y >= 0 && point.y < boardSize
 }
 
+export function isPointInViewport(point: BoardPoint, viewport: BoardViewport) {
+  return (
+    point.x >= viewport.xStart &&
+    point.x < viewport.xStart + viewport.width &&
+    point.y >= viewport.yStart &&
+    point.y < viewport.yStart + viewport.height
+  )
+}
+
+export function getDefaultViewport(boardSize: number): BoardViewport {
+  return {
+    xStart: 0,
+    yStart: 0,
+    width: boardSize,
+    height: boardSize,
+  }
+}
+
+export function getPuzzlePosition(puzzle: GoPuzzleData): ParsedSgfPuzzle {
+  if (puzzle.sgf) return parseSgfPuzzle(puzzle.sgf)
+
+  return {
+    boardSize: puzzle.boardSize,
+    toPlay: puzzle.toPlay,
+    stones: puzzle.stones,
+    moves: [],
+  }
+}
+
 export function getPuzzleSteps(puzzle: GoPuzzleData): PuzzleStep[] {
+  if (puzzle.sgf) {
+    const parsed = parseSgfPuzzle(puzzle.sgf)
+    const playerMoves = parsed.moves.filter((move) => move.color === parsed.toPlay)
+
+    return playerMoves.map((move, index) => ({
+      prompt: index === 0 ? puzzle.objective : `Step ${index + 1}: Continue the solution sequence.`,
+      solutions: [{ x: move.x, y: move.y }],
+      successMessage: index === playerMoves.length - 1 ? puzzle.successMessage : 'Good. Continue the sequence.',
+    }))
+  }
+
   return puzzle.steps ?? [
     {
       prompt: puzzle.objective,
@@ -166,18 +301,34 @@ export function getPuzzleSteps(puzzle: GoPuzzleData): PuzzleStep[] {
 
 export function validatePuzzleDefinition(puzzle: GoPuzzleData): string[] {
   const errors: string[] = []
+  const parsed = getPuzzlePosition(puzzle)
   const occupied = new Set<string>()
+  const viewport = puzzle.viewport ?? getDefaultViewport(parsed.boardSize)
+  const sgfPlayer = stoneColorToSgfColor(parsed.toPlay)
 
   if (!puzzle.id.trim()) errors.push('Puzzle id is required.')
-  if (puzzle.boardSize < 2) errors.push(`${puzzle.id}: boardSize must be at least 2.`)
-  if (!puzzle.solutions.length && !puzzle.steps?.length) {
-    errors.push(`${puzzle.id}: at least one solution or step is required.`)
+  if (parsed.boardSize < 2) errors.push(`${puzzle.id}: board size must be at least 2.`)
+  if (puzzle.sgf && parsed.boardSize !== 19) errors.push(`${puzzle.id}: SGF puzzles must use SZ[19].`)
+  if (puzzle.sgf && !puzzle.sgf.includes(`PL[${sgfPlayer}]`)) {
+    errors.push(`${puzzle.id}: SGF puzzle must define PL[${sgfPlayer}].`)
+  }
+  if (viewport.width < 2 || viewport.height < 2) {
+    errors.push(`${puzzle.id}: viewport must show at least 2x2 intersections.`)
+  }
+  if (!isPointOnBoard({ x: viewport.xStart, y: viewport.yStart }, parsed.boardSize)) {
+    errors.push(`${puzzle.id}: viewport starts outside the board.`)
+  }
+  if (!isPointOnBoard({ x: viewport.xStart + viewport.width - 1, y: viewport.yStart + viewport.height - 1 }, parsed.boardSize)) {
+    errors.push(`${puzzle.id}: viewport extends outside the board.`)
+  }
+  if (!parsed.moves.length && !puzzle.solutions.length && !puzzle.steps?.length) {
+    errors.push(`${puzzle.id}: at least one SGF move, solution, or step is required.`)
   }
 
-  for (const stone of puzzle.stones) {
+  for (const stone of parsed.stones) {
     const key = pointKey(stone)
 
-    if (!isPointOnBoard(stone, puzzle.boardSize)) {
+    if (!isPointOnBoard(stone, parsed.boardSize)) {
       errors.push(`${puzzle.id}: stone ${key} is outside the board.`)
     }
 
@@ -198,19 +349,23 @@ export function validatePuzzleDefinition(puzzle: GoPuzzleData): string[] {
     for (const solution of step.solutions) {
       const key = pointKey(solution)
 
-      if (!isPointOnBoard(solution, puzzle.boardSize)) {
+      if (!isPointOnBoard(solution, parsed.boardSize)) {
         errors.push(`${puzzle.id}: solution ${key} in step ${index + 1} is outside the board.`)
       }
 
       if (occupied.has(key)) {
         errors.push(`${puzzle.id}: solution ${key} in step ${index + 1} is already occupied.`)
       }
+
+      if (puzzle.sgf && !isPointInViewport(solution, viewport)) {
+        errors.push(`${puzzle.id}: SGF solution ${key} in step ${index + 1} is outside the visible viewport.`)
+      }
     }
 
     if (step.opponentReply) {
       const key = pointKey(step.opponentReply)
 
-      if (!isPointOnBoard(step.opponentReply, puzzle.boardSize)) {
+      if (!isPointOnBoard(step.opponentReply, parsed.boardSize)) {
         errors.push(`${puzzle.id}: opponent reply ${key} in step ${index + 1} is outside the board.`)
       }
 

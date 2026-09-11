@@ -2,11 +2,17 @@
 
 import { useMemo, useState } from 'react'
 import {
+  getDefaultViewport,
   getPuzzleById,
+  getPuzzlePosition,
   getPuzzleSteps,
+  isPointInViewport,
+  pointKey,
   validatePuzzleDefinition,
   type BoardPoint,
+  type BoardViewport,
   type GoPuzzleData,
+  type ParsedSgfMove,
   type PuzzleStone,
   type StoneColor,
 } from '@/lib/puzzles'
@@ -15,18 +21,14 @@ type GoPuzzleProps = {
   puzzleId: string
 }
 
+type PuzzleResult = 'correct' | 'incorrect' | 'complete' | null
+
+const boardPadding = 28
+const gridSpacing = 34
+const stoneRadius = 13
+
 function samePoint(a: BoardPoint, b: BoardPoint) {
   return a.x === b.x && a.y === b.y
-}
-
-function pointKey(point: BoardPoint) {
-  return `${point.x}-${point.y}`
-}
-
-function getStoneClasses(color: StoneColor) {
-  return color === 'black'
-    ? 'bg-stone-950 shadow-[inset_0_1px_2px_rgba(255,255,255,0.18),0_5px_12px_rgba(28,25,23,0.28)]'
-    : 'border border-stone-300 bg-stone-50 shadow-[inset_0_-1px_2px_rgba(28,25,23,0.08),0_5px_12px_rgba(28,25,23,0.18)]'
 }
 
 function getStoneName(color: StoneColor) {
@@ -37,34 +39,116 @@ function getOpponentColor(color: StoneColor): StoneColor {
   return color === 'black' ? 'white' : 'black'
 }
 
+function getViewportPoints(viewport: BoardViewport) {
+  return Array.from({ length: viewport.width * viewport.height }, (_, index) => ({
+    x: viewport.xStart + (index % viewport.width),
+    y: viewport.yStart + Math.floor(index / viewport.width),
+  }))
+}
+
+function getViewCoordinate(point: BoardPoint, viewport: BoardViewport) {
+  return {
+    cx: boardPadding + (point.x - viewport.xStart) * gridSpacing,
+    cy: boardPadding + (point.y - viewport.yStart) * gridSpacing,
+  }
+}
+
+function getCurrentSgfUserMove(moves: ParsedSgfMove[], moveCursor: number, toPlay: StoneColor) {
+  return moves.find((move, index) => index >= moveCursor && move.color === toPlay)
+}
+
+function PuzzleStoneSvg({
+  stone,
+  viewport,
+  shadowFilterId,
+}: {
+  stone: PuzzleStone
+  viewport: BoardViewport
+  shadowFilterId: string
+}) {
+  const { cx, cy } = getViewCoordinate(stone, viewport)
+
+  return (
+    <circle
+      cx={cx}
+      cy={cy}
+      r={stoneRadius}
+      fill={stone.color === 'black' ? '#1c1917' : '#fafaf8'}
+      stroke={stone.color === 'black' ? '#1c1917' : '#a8a29e'}
+      strokeWidth={stone.color === 'black' ? 0 : 1.3}
+      filter={`url(#${shadowFilterId})`}
+    />
+  )
+}
+
 function PuzzleBoard({ puzzle }: { puzzle: GoPuzzleData }) {
+  const position = useMemo(() => getPuzzlePosition(puzzle), [puzzle])
+  const viewport = puzzle.viewport ?? getDefaultViewport(position.boardSize)
+  const isSgfPuzzle = Boolean(puzzle.sgf)
+  const legacySteps = useMemo(() => getPuzzleSteps(puzzle), [puzzle])
   const [selectedPoint, setSelectedPoint] = useState<BoardPoint | null>(null)
-  const [result, setResult] = useState<'correct' | 'incorrect' | 'complete' | null>(null)
+  const [result, setResult] = useState<PuzzleResult>(null)
   const [currentStepIndex, setCurrentStepIndex] = useState(0)
+  const [moveCursor, setMoveCursor] = useState(0)
   const [playedStones, setPlayedStones] = useState<PuzzleStone[]>([])
   const [feedbackMessage, setFeedbackMessage] = useState<string | null>(null)
-  const steps = useMemo(() => getPuzzleSteps(puzzle), [puzzle])
-  const currentStep = steps[currentStepIndex]
   const isComplete = result === 'complete'
-
+  const currentLegacyStep = legacySteps[currentStepIndex]
+  const currentSgfMove = getCurrentSgfUserMove(position.moves, moveCursor, position.toPlay)
+  const stonesInView = useMemo(() => {
+    return [...position.stones, ...playedStones].filter((stone) => isPointInViewport(stone, viewport))
+  }, [playedStones, position.stones, viewport])
   const stoneMap = useMemo(() => {
-    return new Map([...puzzle.stones, ...playedStones].map((stone) => [pointKey(stone), stone]))
-  }, [playedStones, puzzle.stones])
+    return new Map([...position.stones, ...playedStones].map((stone) => [pointKey(stone), stone]))
+  }, [playedStones, position.stones])
+  const points = useMemo(() => getViewportPoints(viewport), [viewport])
+  const boardWidth = boardPadding * 2 + (viewport.width - 1) * gridSpacing
+  const boardHeight = boardPadding * 2 + (viewport.height - 1) * gridSpacing
+  const shadowFilterId = `stone-shadow-${puzzle.id}`
 
-  const points = useMemo(() => {
-    return Array.from({ length: puzzle.boardSize * puzzle.boardSize }, (_, index) => ({
-      x: index % puzzle.boardSize,
-      y: Math.floor(index / puzzle.boardSize),
-    }))
-  }, [puzzle.boardSize])
+  function playSgfMove(point: BoardPoint) {
+    if (!currentSgfMove) return
 
-  function handlePointClick(point: BoardPoint) {
-    if (stoneMap.has(pointKey(point)) || !currentStep || isComplete) return
+    const isCorrect = samePoint(currentSgfMove, point)
 
-    setSelectedPoint(point)
-    setFeedbackMessage(null)
+    if (!isCorrect) {
+      setFeedbackMessage(puzzle.failureMessage)
+      setResult('incorrect')
+      return
+    }
 
-    const isCorrect = currentStep.solutions.some((solution) => samePoint(solution, point))
+    const nextPlayedStones: PuzzleStone[] = [...playedStones, { ...point, color: currentSgfMove.color }]
+    let nextCursor = position.moves.findIndex((move, index) => index >= moveCursor && samePoint(move, currentSgfMove))
+
+    if (nextCursor === -1) nextCursor = moveCursor
+    nextCursor += 1
+
+    const autoReplies: string[] = []
+
+    while (nextCursor < position.moves.length && position.moves[nextCursor].color !== position.toPlay) {
+      const reply = position.moves[nextCursor]
+      nextPlayedStones.push({ x: reply.x, y: reply.y, color: reply.color })
+      autoReplies.push(`${getStoneName(reply.color)} replies automatically.`)
+      nextCursor += 1
+    }
+
+    setPlayedStones(nextPlayedStones)
+    setMoveCursor(nextCursor)
+
+    if (nextCursor >= position.moves.length) {
+      setFeedbackMessage(puzzle.successMessage)
+      setResult('complete')
+      return
+    }
+
+    setFeedbackMessage(autoReplies.length ? `Correct. ${autoReplies.join(' ')}` : 'Correct. Continue the sequence.')
+    setResult('correct')
+  }
+
+  function playLegacyMove(point: BoardPoint) {
+    if (!currentLegacyStep) return
+
+    const isCorrect = currentLegacyStep.solutions.some((solution) => samePoint(solution, point))
 
     if (!isCorrect) {
       setFeedbackMessage(puzzle.failureMessage)
@@ -74,22 +158,22 @@ function PuzzleBoard({ puzzle }: { puzzle: GoPuzzleData }) {
 
     const nextPlayedStones: PuzzleStone[] = [...playedStones, { ...point, color: puzzle.toPlay }]
 
-    if (currentStep.opponentReply) {
+    if (currentLegacyStep.opponentReply) {
       nextPlayedStones.push({
-        x: currentStep.opponentReply.x,
-        y: currentStep.opponentReply.y,
-        color: currentStep.opponentReply.color ?? getOpponentColor(puzzle.toPlay),
+        x: currentLegacyStep.opponentReply.x,
+        y: currentLegacyStep.opponentReply.y,
+        color: currentLegacyStep.opponentReply.color ?? getOpponentColor(puzzle.toPlay),
       })
     }
 
-    const nextFeedback = currentStep.opponentReply?.message
-      ? `${currentStep.successMessage} ${currentStep.opponentReply.message}`
-      : currentStep.successMessage
+    const nextFeedback = currentLegacyStep.opponentReply?.message
+      ? `${currentLegacyStep.successMessage} ${currentLegacyStep.opponentReply.message}`
+      : currentLegacyStep.successMessage
 
     setPlayedStones(nextPlayedStones)
-    setFeedbackMessage(currentStepIndex >= steps.length - 1 ? puzzle.successMessage : nextFeedback)
+    setFeedbackMessage(currentStepIndex >= legacySteps.length - 1 ? puzzle.successMessage : nextFeedback)
 
-    if (currentStepIndex >= steps.length - 1) {
+    if (currentStepIndex >= legacySteps.length - 1) {
       setResult('complete')
       return
     }
@@ -98,75 +182,143 @@ function PuzzleBoard({ puzzle }: { puzzle: GoPuzzleData }) {
     setCurrentStepIndex((index) => index + 1)
   }
 
+  function handlePointClick(point: BoardPoint) {
+    if (stoneMap.has(pointKey(point)) || isComplete) return
+
+    setSelectedPoint(point)
+    setFeedbackMessage(null)
+
+    if (isSgfPuzzle) {
+      playSgfMove(point)
+    } else {
+      playLegacyMove(point)
+    }
+  }
+
+  function handlePointKeyDown(event: React.KeyboardEvent<SVGGElement>, point: BoardPoint) {
+    if (event.key !== 'Enter' && event.key !== ' ') return
+
+    event.preventDefault()
+    handlePointClick(point)
+  }
+
   function resetPuzzle() {
     setSelectedPoint(null)
     setResult(null)
     setCurrentStepIndex(0)
+    setMoveCursor(0)
     setPlayedStones([])
     setFeedbackMessage(null)
   }
 
+  const currentPrompt = isSgfPuzzle
+    ? currentSgfMove
+      ? puzzle.objective
+      : puzzle.lessonNote
+    : currentLegacyStep?.prompt ?? puzzle.lessonNote
+  const currentStepLabel = isSgfPuzzle
+    ? `Move ${position.moves.filter((move, index) => index < moveCursor && move.color === position.toPlay).length + 1} of ${position.moves.filter((move) => move.color === position.toPlay).length}`
+    : `Step ${currentStepIndex + 1} of ${legacySteps.length}`
+
   return (
     <div>
-      <div
-        className="relative mx-auto aspect-square w-full max-w-[26rem] rounded-[1.6rem] border border-stone-300 bg-[#d9c79f] p-5 shadow-[0_24px_70px_-50px_rgba(28,25,23,0.65)]"
-        style={{
-          backgroundImage:
-            'linear-gradient(rgba(90,75,49,0.55) 1px, transparent 1px), linear-gradient(90deg, rgba(90,75,49,0.55) 1px, transparent 1px)',
-          backgroundSize: `calc((100% - 2.5rem) / ${puzzle.boardSize - 1}) calc((100% - 2.5rem) / ${puzzle.boardSize - 1})`,
-          backgroundPosition: '1.25rem 1.25rem',
-          backgroundRepeat: 'repeat',
-        }}
-      >
-        <div
-          className="grid h-full w-full"
-          style={{ gridTemplateColumns: `repeat(${puzzle.boardSize}, minmax(0, 1fr))` }}
-          aria-label={`${puzzle.title} puzzle board`}
+      <div className="mx-auto w-full max-w-[26rem] rounded-[1.6rem] border border-stone-300 bg-[#d9c79f] p-3 shadow-[0_24px_70px_-50px_rgba(28,25,23,0.65)]">
+        <svg
+          viewBox={`0 0 ${boardWidth} ${boardHeight}`}
+          className="block h-auto w-full"
           role="group"
+          aria-label={`${puzzle.title} puzzle board`}
         >
-          {points.map((point) => {
-            const key = pointKey(point)
-            const stone = stoneMap.get(key)
-            const isSelected = selectedPoint ? samePoint(selectedPoint, point) : false
-            const isSolution = result === 'incorrect' && currentStep.solutions.some((solution) => samePoint(solution, point))
-            const canPlay = !stone
+          <defs>
+            <filter id={shadowFilterId} x="-40%" y="-40%" width="180%" height="180%">
+              <feDropShadow dx="0" dy="2" stdDeviation="2" floodColor="#1c1917" floodOpacity="0.24" />
+            </filter>
+          </defs>
 
+          <rect width={boardWidth} height={boardHeight} rx="16" fill="#d9c79f" />
+
+          {Array.from({ length: viewport.height }, (_, index) => {
+            const y = boardPadding + index * gridSpacing
             return (
-              <button
-                key={key}
-                type="button"
-                onClick={() => handlePointClick(point)}
-                disabled={!canPlay}
-                aria-label={
-                  stone
-                    ? `${getStoneName(stone.color)} stone at column ${point.x + 1}, row ${point.y + 1}`
-                    : `Play at column ${point.x + 1}, row ${point.y + 1}`
-                }
-                className="relative grid min-h-10 place-items-center rounded-full focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-emerald-950 disabled:cursor-default sm:min-h-12"
-              >
-                {stone ? (
-                  <span className={`h-7 w-7 rounded-full sm:h-9 sm:w-9 ${getStoneClasses(stone.color)}`} />
-                ) : null}
-
-                {isSelected ? (
-                  <span
-                    className={`h-7 w-7 rounded-full border-2 sm:h-9 sm:w-9 ${
-                      result === 'correct'
-                        ? 'border-emerald-950 bg-emerald-950/15'
-                        : result === 'complete'
-                        ? 'border-emerald-950 bg-emerald-950/15'
-                        : 'border-red-900/70 bg-red-900/10'
-                    }`}
-                  />
-                ) : null}
-
-                {isSolution ? (
-                  <span className="absolute h-3 w-3 rounded-full bg-emerald-900 shadow-[0_0_0_5px_rgba(20,83,45,0.12)]" />
-                ) : null}
-              </button>
+              <line
+                key={`row-${index}`}
+                x1={boardPadding}
+                y1={y}
+                x2={boardWidth - boardPadding}
+                y2={y}
+                stroke="#6f5f42"
+                strokeWidth="1.15"
+                opacity="0.72"
+              />
             )
           })}
-        </div>
+
+          {Array.from({ length: viewport.width }, (_, index) => {
+            const x = boardPadding + index * gridSpacing
+            return (
+              <line
+                key={`column-${index}`}
+                x1={x}
+                y1={boardPadding}
+                x2={x}
+                y2={boardHeight - boardPadding}
+                stroke="#6f5f42"
+                strokeWidth="1.15"
+                opacity="0.72"
+              />
+            )
+          })}
+
+          {stonesInView.map((stone) => (
+            <PuzzleStoneSvg
+              key={`${stone.color}-${pointKey(stone)}`}
+              stone={stone}
+              viewport={viewport}
+              shadowFilterId={shadowFilterId}
+            />
+          ))}
+
+          {selectedPoint && isPointInViewport(selectedPoint, viewport) ? (
+            <circle
+              {...getViewCoordinate(selectedPoint, viewport)}
+              r={stoneRadius + 4}
+              fill="none"
+              stroke={result === 'incorrect' ? '#7f1d1d' : '#064e3b'}
+              strokeWidth="2"
+              opacity="0.8"
+            />
+          ) : null}
+
+          {points.map((point) => {
+            const stone = stoneMap.get(pointKey(point))
+            const canPlay = !stone && !isComplete
+            const expectedSolutions = isSgfPuzzle && currentSgfMove ? [currentSgfMove] : currentLegacyStep?.solutions ?? []
+            const isSolution = result === 'incorrect' && expectedSolutions.some((solution) => samePoint(solution, point))
+            const { cx, cy } = getViewCoordinate(point, viewport)
+
+            return (
+              <g
+                key={pointKey(point)}
+                role="button"
+                tabIndex={canPlay ? 0 : -1}
+                aria-disabled={!canPlay}
+                aria-label={
+                  stone
+                    ? `${getStoneName(stone.color)} stone at full-board column ${point.x + 1}, row ${point.y + 1}`
+                    : `Play at full-board column ${point.x + 1}, row ${point.y + 1}`
+                }
+                onClick={() => handlePointClick(point)}
+                onKeyDown={(event) => handlePointKeyDown(event, point)}
+                className={canPlay ? 'cursor-pointer outline-none' : 'cursor-default outline-none'}
+              >
+                <circle cx={cx} cy={cy} r={gridSpacing / 2} fill="transparent" />
+                {isSolution ? (
+                  <circle cx={cx} cy={cy} r="5" fill="#064e3b" opacity="0.9" />
+                ) : null}
+              </g>
+            )
+          })}
+        </svg>
       </div>
 
       <div
@@ -179,13 +331,7 @@ function PuzzleBoard({ puzzle }: { puzzle: GoPuzzleData }) {
         }`}
         aria-live="polite"
       >
-        {result === 'complete'
-          ? feedbackMessage ?? puzzle.successMessage
-          : result === 'correct'
-            ? feedbackMessage ?? puzzle.successMessage
-          : result === 'incorrect'
-            ? feedbackMessage ?? puzzle.failureMessage
-            : currentStep?.prompt ?? puzzle.lessonNote}
+        {feedbackMessage ?? currentPrompt}
       </div>
 
       <div className="mt-4 flex flex-wrap items-center gap-3">
@@ -197,7 +343,7 @@ function PuzzleBoard({ puzzle }: { puzzle: GoPuzzleData }) {
           Reset puzzle
         </button>
         <p className="text-xs font-medium text-stone-500">
-          {isComplete ? 'Puzzle complete' : `${getStoneName(puzzle.toPlay)} to play · Step ${currentStepIndex + 1} of ${steps.length}`}
+          {isComplete ? 'Puzzle complete' : `${getStoneName(position.toPlay)} to play · ${currentStepLabel}`}
         </p>
       </div>
     </div>
@@ -242,6 +388,9 @@ export function GoPuzzle({ puzzleId }: GoPuzzleProps) {
           <span className="rounded-full bg-[#f4f4ef] px-3 py-1.5 text-stone-600">{puzzle.difficulty}</span>
           {puzzle.category ? (
             <span className="rounded-full bg-[#f4f4ef] px-3 py-1.5 text-stone-600">{puzzle.category}</span>
+          ) : null}
+          {puzzle.sgf ? (
+            <span className="rounded-full bg-[#f4f4ef] px-3 py-1.5 text-stone-600">SGF source</span>
           ) : null}
           <span className="rounded-full bg-emerald-950 px-3 py-1.5 text-white">{getStoneName(puzzle.toPlay)} to play</span>
         </div>

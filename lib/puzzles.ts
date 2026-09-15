@@ -53,6 +53,7 @@ export type GoPuzzleData = {
   solutions: BoardPoint[]
   steps?: PuzzleStep[]
   sgf?: string
+  sgfPath?: string
   viewport?: BoardViewport
   successMessage: string
   failureMessage: string
@@ -79,11 +80,65 @@ export const puzzles: GoPuzzleData[] = [
     tags: ['sgf', 'atari', 'corner', 'sequence'],
     stones: [],
     solutions: [],
-    sgf: '(;SZ[19]PL[B]AB[qc][pd]AW[qd];B[rd];W[qe];B[re])',
+    sgfPath: '/puzzles/sgf-atari-corner-001.sgf',
     viewport: topRightCornerViewport,
     successMessage: 'Correct. You completed the SGF sequence and kept pressure in the corner.',
     failureMessage: 'Not quite. Stay inside the corner shape and follow the forcing moves.',
     lessonNote: 'This puzzle uses a full 19×19 SGF position, but only the relevant 9×9 corner is shown.',
+  },
+  {
+    id: 'sgf-capture-single-001',
+    title: 'Capture a Corner Stone',
+    description: 'Black to play on a full 19×19 board. Capture White by filling the final liberty.',
+    boardSize: 19,
+    toPlay: 'black',
+    objective: 'Find the move that removes White’s last liberty in the corner.',
+    difficulty: 'Beginner',
+    category: 'Capturing',
+    tags: ['sgf', 'capture', 'corner', 'liberties'],
+    stones: [],
+    solutions: [],
+    sgfPath: '/puzzles/sgf-capture-single-001.sgf',
+    viewport: topRightCornerViewport,
+    successMessage: 'Correct. The white stone has no liberties and is removed from the board.',
+    failureMessage: 'Not quite. Look for the final open liberty beside the white stone.',
+    lessonNote: 'Captures are now calculated on the full 19×19 board, even when only one corner is visible.',
+  },
+  {
+    id: 'sgf-capture-group-001',
+    title: 'Capture the Small Group',
+    description: 'Black to play. Capture two connected white stones by filling their shared final liberty.',
+    boardSize: 19,
+    toPlay: 'black',
+    objective: 'Play the move that removes the last liberty from the white group.',
+    difficulty: 'Beginner',
+    category: 'Capturing',
+    tags: ['sgf', 'capture', 'group', 'liberties'],
+    stones: [],
+    solutions: [],
+    sgfPath: '/puzzles/sgf-capture-group-001.sgf',
+    viewport: topRightCornerViewport,
+    successMessage: 'Correct. The whole white group is captured together.',
+    failureMessage: 'Not quite. Connected stones are captured as a group when all liberties are gone.',
+    lessonNote: 'A connected group is removed together when the group has no liberties.',
+  },
+  {
+    id: 'sgf-auto-capture-001',
+    title: 'Watch the Reply Capture',
+    description: 'Black to play. After your move, White replies automatically and captures a stone.',
+    boardSize: 19,
+    toPlay: 'black',
+    objective: 'Play the expected move, then watch White’s automatic reply resolve through capture logic.',
+    difficulty: 'Beginner',
+    category: 'Capturing',
+    tags: ['sgf', 'capture', 'automatic reply'],
+    stones: [],
+    solutions: [],
+    sgfPath: '/puzzles/sgf-auto-capture-001.sgf',
+    viewport: topRightCornerViewport,
+    successMessage: 'Correct. White’s reply captured the black stone through the same board engine.',
+    failureMessage: 'Not quite. Follow the SGF sequence in the corner.',
+    lessonNote: 'Automatic replies use the same full-board move logic as learner moves.',
   },
   {
     id: 'atari-001',
@@ -267,8 +322,8 @@ export function getDefaultViewport(boardSize: number): BoardViewport {
   }
 }
 
-export function getPuzzlePosition(puzzle: GoPuzzleData): ParsedSgfPuzzle {
-  if (puzzle.sgf) return parseSgfPuzzle(puzzle.sgf)
+export function getPuzzlePosition(puzzle: GoPuzzleData, sgfSource?: string | null): ParsedSgfPuzzle {
+  if (sgfSource || puzzle.sgf) return parseSgfPuzzle(sgfSource ?? puzzle.sgf ?? '')
 
   return {
     boardSize: puzzle.boardSize,
@@ -278,9 +333,9 @@ export function getPuzzlePosition(puzzle: GoPuzzleData): ParsedSgfPuzzle {
   }
 }
 
-export function getPuzzleSteps(puzzle: GoPuzzleData): PuzzleStep[] {
-  if (puzzle.sgf) {
-    const parsed = parseSgfPuzzle(puzzle.sgf)
+export function getPuzzleSteps(puzzle: GoPuzzleData, sgfSource?: string | null): PuzzleStep[] {
+  if (sgfSource || puzzle.sgf) {
+    const parsed = parseSgfPuzzle(sgfSource ?? puzzle.sgf ?? '')
     const playerMoves = parsed.moves.filter((move) => move.color === parsed.toPlay)
 
     return playerMoves.map((move, index) => ({
@@ -299,17 +354,18 @@ export function getPuzzleSteps(puzzle: GoPuzzleData): PuzzleStep[] {
   ]
 }
 
-export function validatePuzzleDefinition(puzzle: GoPuzzleData): string[] {
+export function validatePuzzleDefinition(puzzle: GoPuzzleData, sgfSource?: string | null): string[] {
   const errors: string[] = []
-  const parsed = getPuzzlePosition(puzzle)
+  const parsed = getPuzzlePosition(puzzle, sgfSource)
   const occupied = new Set<string>()
   const viewport = puzzle.viewport ?? getDefaultViewport(parsed.boardSize)
   const sgfPlayer = stoneColorToSgfColor(parsed.toPlay)
 
   if (!puzzle.id.trim()) errors.push('Puzzle id is required.')
   if (parsed.boardSize < 2) errors.push(`${puzzle.id}: board size must be at least 2.`)
-  if (puzzle.sgf && parsed.boardSize !== 19) errors.push(`${puzzle.id}: SGF puzzles must use SZ[19].`)
-  if (puzzle.sgf && !puzzle.sgf.includes(`PL[${sgfPlayer}]`)) {
+  if ((puzzle.sgf || puzzle.sgfPath) && !sgfSource && !puzzle.sgf) return errors
+  if ((sgfSource || puzzle.sgf) && parsed.boardSize !== 19) errors.push(`${puzzle.id}: SGF puzzles must use SZ[19].`)
+  if ((sgfSource || puzzle.sgf) && !(sgfSource ?? puzzle.sgf ?? '').includes(`PL[${sgfPlayer}]`)) {
     errors.push(`${puzzle.id}: SGF puzzle must define PL[${sgfPlayer}].`)
   }
   if (viewport.width < 2 || viewport.height < 2) {
@@ -339,7 +395,7 @@ export function validatePuzzleDefinition(puzzle: GoPuzzleData): string[] {
     occupied.add(key)
   }
 
-  const steps = getPuzzleSteps(puzzle)
+  const steps = getPuzzleSteps(puzzle, sgfSource)
 
   steps.forEach((step, index) => {
     if (!step.solutions.length) {
@@ -357,7 +413,7 @@ export function validatePuzzleDefinition(puzzle: GoPuzzleData): string[] {
         errors.push(`${puzzle.id}: solution ${key} in step ${index + 1} is already occupied.`)
       }
 
-      if (puzzle.sgf && !isPointInViewport(solution, viewport)) {
+      if ((sgfSource || puzzle.sgf) && !isPointInViewport(solution, viewport)) {
         errors.push(`${puzzle.id}: SGF solution ${key} in step ${index + 1} is outside the visible viewport.`)
       }
     }
@@ -379,5 +435,5 @@ export function validatePuzzleDefinition(puzzle: GoPuzzleData): string[] {
 }
 
 export function validatePuzzles(puzzleList = puzzles) {
-  return puzzleList.flatMap(validatePuzzleDefinition)
+  return puzzleList.flatMap((puzzle) => validatePuzzleDefinition(puzzle))
 }

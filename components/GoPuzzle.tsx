@@ -1,6 +1,7 @@
 'use client'
 
-import { useMemo, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
+import { applyMove } from '@/lib/goBoard'
 import {
   getDefaultViewport,
   getPuzzleById,
@@ -82,29 +83,71 @@ function PuzzleStoneSvg({
 }
 
 function PuzzleBoard({ puzzle }: { puzzle: GoPuzzleData }) {
-  const position = useMemo(() => getPuzzlePosition(puzzle), [puzzle])
+  const isSgfPuzzle = Boolean(puzzle.sgf || puzzle.sgfPath)
+  const [sgfSource, setSgfSource] = useState<string | null>(puzzle.sgf ?? null)
+  const [sgfLoadError, setSgfLoadError] = useState<string | null>(null)
+  const position = useMemo(() => getPuzzlePosition(puzzle, sgfSource), [puzzle, sgfSource])
   const viewport = puzzle.viewport ?? getDefaultViewport(position.boardSize)
-  const isSgfPuzzle = Boolean(puzzle.sgf)
-  const legacySteps = useMemo(() => getPuzzleSteps(puzzle), [puzzle])
+  const legacySteps = useMemo(() => getPuzzleSteps(puzzle, sgfSource), [puzzle, sgfSource])
+  const validationErrors = useMemo(() => validatePuzzleDefinition(puzzle, sgfSource), [puzzle, sgfSource])
   const [selectedPoint, setSelectedPoint] = useState<BoardPoint | null>(null)
   const [result, setResult] = useState<PuzzleResult>(null)
   const [currentStepIndex, setCurrentStepIndex] = useState(0)
   const [moveCursor, setMoveCursor] = useState(0)
-  const [playedStones, setPlayedStones] = useState<PuzzleStone[]>([])
+  const [boardStones, setBoardStones] = useState<PuzzleStone[]>(position.stones)
   const [feedbackMessage, setFeedbackMessage] = useState<string | null>(null)
   const isComplete = result === 'complete'
+  const isLoadingSgf = Boolean(puzzle.sgfPath && !sgfSource && !sgfLoadError)
   const currentLegacyStep = legacySteps[currentStepIndex]
   const currentSgfMove = getCurrentSgfUserMove(position.moves, moveCursor, position.toPlay)
   const stonesInView = useMemo(() => {
-    return [...position.stones, ...playedStones].filter((stone) => isPointInViewport(stone, viewport))
-  }, [playedStones, position.stones, viewport])
+    return boardStones.filter((stone) => isPointInViewport(stone, viewport))
+  }, [boardStones, viewport])
   const stoneMap = useMemo(() => {
-    return new Map([...position.stones, ...playedStones].map((stone) => [pointKey(stone), stone]))
-  }, [playedStones, position.stones])
+    return new Map(boardStones.map((stone) => [pointKey(stone), stone]))
+  }, [boardStones])
   const points = useMemo(() => getViewportPoints(viewport), [viewport])
   const boardWidth = boardPadding * 2 + (viewport.width - 1) * gridSpacing
   const boardHeight = boardPadding * 2 + (viewport.height - 1) * gridSpacing
   const shadowFilterId = `stone-shadow-${puzzle.id}`
+
+  useEffect(() => {
+    if (!puzzle.sgfPath) {
+      setSgfSource(puzzle.sgf ?? null)
+      setSgfLoadError(null)
+      return
+    }
+
+    let isActive = true
+
+    setSgfSource(null)
+    setSgfLoadError(null)
+
+    fetch(puzzle.sgfPath)
+      .then((response) => {
+        if (!response.ok) throw new Error(`Could not load SGF file: ${puzzle.sgfPath}`)
+        return response.text()
+      })
+      .then((source) => {
+        if (isActive) setSgfSource(source)
+      })
+      .catch((error: unknown) => {
+        if (isActive) setSgfLoadError(error instanceof Error ? error.message : 'Could not load SGF file.')
+      })
+
+    return () => {
+      isActive = false
+    }
+  }, [puzzle.sgf, puzzle.sgfPath])
+
+  useEffect(() => {
+    setSelectedPoint(null)
+    setResult(null)
+    setCurrentStepIndex(0)
+    setMoveCursor(0)
+    setBoardStones(position.stones)
+    setFeedbackMessage(null)
+  }, [position.stones, puzzle.id, sgfSource])
 
   function playSgfMove(point: BoardPoint) {
     if (!currentSgfMove) return
@@ -117,7 +160,15 @@ function PuzzleBoard({ puzzle }: { puzzle: GoPuzzleData }) {
       return
     }
 
-    const nextPlayedStones: PuzzleStone[] = [...playedStones, { ...point, color: currentSgfMove.color }]
+    const learnerMoveResult = applyMove(boardStones, { ...point, color: currentSgfMove.color }, position.boardSize)
+
+    if (!learnerMoveResult.ok) {
+      setFeedbackMessage(learnerMoveResult.reason)
+      setResult('incorrect')
+      return
+    }
+
+    let nextStones = learnerMoveResult.stones
     let nextCursor = position.moves.findIndex((move, index) => index >= moveCursor && samePoint(move, currentSgfMove))
 
     if (nextCursor === -1) nextCursor = moveCursor
@@ -127,12 +178,26 @@ function PuzzleBoard({ puzzle }: { puzzle: GoPuzzleData }) {
 
     while (nextCursor < position.moves.length && position.moves[nextCursor].color !== position.toPlay) {
       const reply = position.moves[nextCursor]
-      nextPlayedStones.push({ x: reply.x, y: reply.y, color: reply.color })
-      autoReplies.push(`${getStoneName(reply.color)} replies automatically.`)
+      const replyResult = applyMove(nextStones, reply, position.boardSize)
+
+      if (!replyResult.ok) {
+        setFeedbackMessage(replyResult.reason)
+        setResult('incorrect')
+        return
+      }
+
+      nextStones = replyResult.stones
+      autoReplies.push(
+        replyResult.captured.length > 0
+          ? `${getStoneName(reply.color)} replies automatically and captures ${replyResult.captured.length} stone${
+              replyResult.captured.length === 1 ? '' : 's'
+            }.`
+          : `${getStoneName(reply.color)} replies automatically.`,
+      )
       nextCursor += 1
     }
 
-    setPlayedStones(nextPlayedStones)
+    setBoardStones(nextStones)
     setMoveCursor(nextCursor)
 
     if (nextCursor >= position.moves.length) {
@@ -141,7 +206,14 @@ function PuzzleBoard({ puzzle }: { puzzle: GoPuzzleData }) {
       return
     }
 
-    setFeedbackMessage(autoReplies.length ? `Correct. ${autoReplies.join(' ')}` : 'Correct. Continue the sequence.')
+    const captureText =
+      learnerMoveResult.captured.length > 0
+        ? ` You captured ${learnerMoveResult.captured.length} stone${learnerMoveResult.captured.length === 1 ? '' : 's'}.`
+        : ''
+
+    setFeedbackMessage(
+      autoReplies.length ? `Correct.${captureText} ${autoReplies.join(' ')}` : `Correct.${captureText} Continue the sequence.`,
+    )
     setResult('correct')
   }
 
@@ -156,21 +228,41 @@ function PuzzleBoard({ puzzle }: { puzzle: GoPuzzleData }) {
       return
     }
 
-    const nextPlayedStones: PuzzleStone[] = [...playedStones, { ...point, color: puzzle.toPlay }]
+    const moveResult = applyMove(boardStones, { ...point, color: puzzle.toPlay }, position.boardSize)
+
+    if (!moveResult.ok) {
+      setFeedbackMessage(moveResult.reason)
+      setResult('incorrect')
+      return
+    }
+
+    let nextStones = moveResult.stones
 
     if (currentLegacyStep.opponentReply) {
-      nextPlayedStones.push({
-        x: currentLegacyStep.opponentReply.x,
-        y: currentLegacyStep.opponentReply.y,
-        color: currentLegacyStep.opponentReply.color ?? getOpponentColor(puzzle.toPlay),
-      })
+      const replyResult = applyMove(
+        nextStones,
+        {
+          x: currentLegacyStep.opponentReply.x,
+          y: currentLegacyStep.opponentReply.y,
+          color: currentLegacyStep.opponentReply.color ?? getOpponentColor(puzzle.toPlay),
+        },
+        position.boardSize,
+      )
+
+      if (!replyResult.ok) {
+        setFeedbackMessage(replyResult.reason)
+        setResult('incorrect')
+        return
+      }
+
+      nextStones = replyResult.stones
     }
 
     const nextFeedback = currentLegacyStep.opponentReply?.message
       ? `${currentLegacyStep.successMessage} ${currentLegacyStep.opponentReply.message}`
       : currentLegacyStep.successMessage
 
-    setPlayedStones(nextPlayedStones)
+    setBoardStones(nextStones)
     setFeedbackMessage(currentStepIndex >= legacySteps.length - 1 ? puzzle.successMessage : nextFeedback)
 
     if (currentStepIndex >= legacySteps.length - 1) {
@@ -183,7 +275,7 @@ function PuzzleBoard({ puzzle }: { puzzle: GoPuzzleData }) {
   }
 
   function handlePointClick(point: BoardPoint) {
-    if (stoneMap.has(pointKey(point)) || isComplete) return
+    if (stoneMap.has(pointKey(point)) || isComplete || isLoadingSgf || validationErrors.length > 0) return
 
     setSelectedPoint(point)
     setFeedbackMessage(null)
@@ -207,15 +299,38 @@ function PuzzleBoard({ puzzle }: { puzzle: GoPuzzleData }) {
     setResult(null)
     setCurrentStepIndex(0)
     setMoveCursor(0)
-    setPlayedStones([])
+    setBoardStones(position.stones)
     setFeedbackMessage(null)
   }
 
-  const currentPrompt = isSgfPuzzle
-    ? currentSgfMove
-      ? puzzle.objective
-      : puzzle.lessonNote
-    : currentLegacyStep?.prompt ?? puzzle.lessonNote
+  if (sgfLoadError) {
+    return (
+      <div className="rounded-2xl border border-red-900/15 bg-red-950/[0.04] p-5 text-sm text-red-950">
+        {sgfLoadError}
+      </div>
+    )
+  }
+
+  if (validationErrors.length > 0) {
+    return (
+      <div className="rounded-2xl border border-red-900/15 bg-red-950/[0.04] p-5 text-sm text-red-950">
+        <p className="font-semibold">Puzzle definition error: {puzzle.id}</p>
+        <ul className="mt-2 list-disc space-y-1 pl-5">
+          {validationErrors.map((error) => (
+            <li key={error}>{error}</li>
+          ))}
+        </ul>
+      </div>
+    )
+  }
+
+  const currentPrompt = isLoadingSgf
+    ? 'Loading puzzle…'
+    : isSgfPuzzle
+      ? currentSgfMove
+        ? puzzle.objective
+        : puzzle.lessonNote
+      : currentLegacyStep?.prompt ?? puzzle.lessonNote
   const currentStepLabel = isSgfPuzzle
     ? `Move ${position.moves.filter((move, index) => index < moveCursor && move.color === position.toPlay).length + 1} of ${position.moves.filter((move) => move.color === position.toPlay).length}`
     : `Step ${currentStepIndex + 1} of ${legacySteps.length}`
@@ -291,7 +406,7 @@ function PuzzleBoard({ puzzle }: { puzzle: GoPuzzleData }) {
 
           {points.map((point) => {
             const stone = stoneMap.get(pointKey(point))
-            const canPlay = !stone && !isComplete
+            const canPlay = !stone && !isComplete && !isLoadingSgf
             const expectedSolutions = isSgfPuzzle && currentSgfMove ? [currentSgfMove] : currentLegacyStep?.solutions ?? []
             const isSolution = result === 'incorrect' && expectedSolutions.some((solution) => samePoint(solution, point))
             const { cx, cy } = getViewCoordinate(point, viewport)
@@ -361,21 +476,6 @@ export function GoPuzzle({ puzzleId }: GoPuzzleProps) {
     )
   }
 
-  const validationErrors = validatePuzzleDefinition(puzzle)
-
-  if (validationErrors.length > 0) {
-    return (
-      <div className="rounded-2xl border border-red-900/15 bg-red-950/[0.04] p-5 text-sm text-red-950">
-        <p className="font-semibold">Puzzle definition error: {puzzleId}</p>
-        <ul className="mt-2 list-disc space-y-1 pl-5">
-          {validationErrors.map((error) => (
-            <li key={error}>{error}</li>
-          ))}
-        </ul>
-      </div>
-    )
-  }
-
   return (
     <section className="rounded-[2rem] bg-white p-5 shadow-[0_18px_60px_-48px_rgba(28,25,23,0.55)] ring-1 ring-stone-900/[0.06] sm:p-6">
       <div className="mb-5">
@@ -389,7 +489,7 @@ export function GoPuzzle({ puzzleId }: GoPuzzleProps) {
           {puzzle.category ? (
             <span className="rounded-full bg-[#f4f4ef] px-3 py-1.5 text-stone-600">{puzzle.category}</span>
           ) : null}
-          {puzzle.sgf ? (
+          {puzzle.sgf || puzzle.sgfPath ? (
             <span className="rounded-full bg-[#f4f4ef] px-3 py-1.5 text-stone-600">SGF source</span>
           ) : null}
           <span className="rounded-full bg-emerald-950 px-3 py-1.5 text-white">{getStoneName(puzzle.toPlay)} to play</span>

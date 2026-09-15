@@ -67,7 +67,68 @@ const topRightCornerViewport: BoardViewport = {
   height: 9,
 }
 
+const topLeftCornerViewport: BoardViewport = {
+  xStart: 0,
+  yStart: 0,
+  width: 9,
+  height: 9,
+}
+
 export const puzzles: GoPuzzleData[] = [
+  {
+    id: 'puzzle1',
+    title: 'Uploaded Test Puzzle 1',
+    description: 'Black to play from an uploaded SGF test position.',
+    boardSize: 13,
+    toPlay: 'black',
+    objective: 'Find the capturing move from the SGF main line.',
+    difficulty: 'Beginner',
+    category: 'Capturing',
+    tags: ['sgf', 'uploaded', 'capture'],
+    stones: [],
+    solutions: [],
+    sgfPath: '/puzzles/puzzle1.sgf',
+    viewport: topLeftCornerViewport,
+    successMessage: 'Correct. You found the SGF solution move.',
+    failureMessage: 'Not quite. Look for the move that removes the last liberty.',
+    lessonNote: 'This uploaded SGF uses a 13×13 board and is shown through the top-left 9×9 crop.',
+  },
+  {
+    id: 'puzzle2',
+    title: 'Uploaded Test Puzzle 2',
+    description: 'Black to play from an uploaded SGF test position.',
+    boardSize: 13,
+    toPlay: 'black',
+    objective: 'Find the move that captures the connected white stones.',
+    difficulty: 'Beginner',
+    category: 'Capturing',
+    tags: ['sgf', 'uploaded', 'group capture'],
+    stones: [],
+    solutions: [],
+    sgfPath: '/puzzles/puzzle2.sgf',
+    viewport: topLeftCornerViewport,
+    successMessage: 'Correct. The white group is captured.',
+    failureMessage: 'Not quite. Connected stones are captured when all group liberties are gone.',
+    lessonNote: 'This uploaded SGF uses a 13×13 board and is shown through the top-left 9×9 crop.',
+  },
+  {
+    id: 'puzzle3',
+    title: 'Uploaded Test Puzzle 3',
+    description: 'Black to play from an uploaded SGF sequence.',
+    boardSize: 13,
+    toPlay: 'black',
+    objective: 'Follow the SGF main sequence and continue after White replies.',
+    difficulty: 'Beginner',
+    category: 'Capturing',
+    tags: ['sgf', 'uploaded', 'sequence'],
+    stones: [],
+    solutions: [],
+    sgfPath: '/puzzles/puzzle3.sgf',
+    viewport: topLeftCornerViewport,
+    successMessage: 'Correct. You completed the uploaded SGF sequence.',
+    failureMessage: 'Not quite. Follow the forcing sequence in the visible shape.',
+    lessonNote: 'This uploaded SGF uses a 13×13 board and is shown through the top-left 9×9 crop.',
+  },
   {
     id: 'sgf-atari-corner-001',
     title: 'Corner Atari Sequence',
@@ -254,10 +315,6 @@ function sgfColorToStoneColor(color: string): StoneColor {
   return color === 'W' ? 'white' : 'black'
 }
 
-function stoneColorToSgfColor(color: StoneColor) {
-  return color === 'white' ? 'W' : 'B'
-}
-
 function sgfPointToBoardPoint(value: string): BoardPoint {
   return {
     x: value.charCodeAt(0) - 97,
@@ -359,14 +416,12 @@ export function validatePuzzleDefinition(puzzle: GoPuzzleData, sgfSource?: strin
   const parsed = getPuzzlePosition(puzzle, sgfSource)
   const occupied = new Set<string>()
   const viewport = puzzle.viewport ?? getDefaultViewport(parsed.boardSize)
-  const sgfPlayer = stoneColorToSgfColor(parsed.toPlay)
 
   if (!puzzle.id.trim()) errors.push('Puzzle id is required.')
   if (parsed.boardSize < 2) errors.push(`${puzzle.id}: board size must be at least 2.`)
   if ((puzzle.sgf || puzzle.sgfPath) && !sgfSource && !puzzle.sgf) return errors
-  if ((sgfSource || puzzle.sgf) && parsed.boardSize !== 19) errors.push(`${puzzle.id}: SGF puzzles must use SZ[19].`)
-  if ((sgfSource || puzzle.sgf) && !(sgfSource ?? puzzle.sgf ?? '').includes(`PL[${sgfPlayer}]`)) {
-    errors.push(`${puzzle.id}: SGF puzzle must define PL[${sgfPlayer}].`)
+  if ((sgfSource || puzzle.sgf) && parsed.boardSize !== puzzle.boardSize) {
+    errors.push(`${puzzle.id}: SGF SZ[${parsed.boardSize}] does not match puzzle boardSize ${puzzle.boardSize}.`)
   }
   if (viewport.width < 2 || viewport.height < 2) {
     errors.push(`${puzzle.id}: viewport must show at least 2x2 intersections.`)

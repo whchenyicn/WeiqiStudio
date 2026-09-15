@@ -60,20 +60,6 @@ export type GoPuzzleData = {
   lessonNote: string
 }
 
-const topRightCornerViewport: BoardViewport = {
-  xStart: 10,
-  yStart: 0,
-  width: 9,
-  height: 9,
-}
-
-const topLeftCornerViewport: BoardViewport = {
-  xStart: 0,
-  yStart: 0,
-  width: 9,
-  height: 9,
-}
-
 export const puzzles: GoPuzzleData[] = [
   {
     id: 'puzzle1',
@@ -88,10 +74,9 @@ export const puzzles: GoPuzzleData[] = [
     stones: [],
     solutions: [],
     sgfPath: '/puzzles/puzzle1.sgf',
-    viewport: topLeftCornerViewport,
     successMessage: 'Correct. You found the SGF solution move.',
     failureMessage: 'Not quite. Look for the move that removes the last liberty.',
-    lessonNote: 'This uploaded SGF uses a 13×13 board and is shown through the top-left 9×9 crop.',
+    lessonNote: 'This uploaded SGF uses a 13×13 board and is shown through an auto-centered 9×9 crop.',
   },
   {
     id: 'puzzle2',
@@ -106,10 +91,9 @@ export const puzzles: GoPuzzleData[] = [
     stones: [],
     solutions: [],
     sgfPath: '/puzzles/puzzle2.sgf',
-    viewport: topLeftCornerViewport,
     successMessage: 'Correct. The white group is captured.',
     failureMessage: 'Not quite. Connected stones are captured when all group liberties are gone.',
-    lessonNote: 'This uploaded SGF uses a 13×13 board and is shown through the top-left 9×9 crop.',
+    lessonNote: 'This uploaded SGF uses a 13×13 board and is shown through an auto-centered 9×9 crop.',
   },
   {
     id: 'puzzle3',
@@ -124,10 +108,9 @@ export const puzzles: GoPuzzleData[] = [
     stones: [],
     solutions: [],
     sgfPath: '/puzzles/puzzle3.sgf',
-    viewport: topLeftCornerViewport,
     successMessage: 'Correct. You completed the uploaded SGF sequence.',
     failureMessage: 'Not quite. Follow the forcing sequence in the visible shape.',
-    lessonNote: 'This uploaded SGF uses a 13×13 board and is shown through the top-left 9×9 crop.',
+    lessonNote: 'This uploaded SGF uses a 13×13 board and is shown through an auto-centered 9×9 crop.',
   },
   {
     id: 'sgf-atari-corner-001',
@@ -142,7 +125,6 @@ export const puzzles: GoPuzzleData[] = [
     stones: [],
     solutions: [],
     sgfPath: '/puzzles/sgf-atari-corner-001.sgf',
-    viewport: topRightCornerViewport,
     successMessage: 'Correct. You completed the SGF sequence and kept pressure in the corner.',
     failureMessage: 'Not quite. Stay inside the corner shape and follow the forcing moves.',
     lessonNote: 'This puzzle uses a full 19×19 SGF position, but only the relevant 9×9 corner is shown.',
@@ -160,7 +142,6 @@ export const puzzles: GoPuzzleData[] = [
     stones: [],
     solutions: [],
     sgfPath: '/puzzles/sgf-capture-single-001.sgf',
-    viewport: topRightCornerViewport,
     successMessage: 'Correct. The white stone has no liberties and is removed from the board.',
     failureMessage: 'Not quite. Look for the final open liberty beside the white stone.',
     lessonNote: 'Captures are now calculated on the full 19×19 board, even when only one corner is visible.',
@@ -178,7 +159,6 @@ export const puzzles: GoPuzzleData[] = [
     stones: [],
     solutions: [],
     sgfPath: '/puzzles/sgf-capture-group-001.sgf',
-    viewport: topRightCornerViewport,
     successMessage: 'Correct. The whole white group is captured together.',
     failureMessage: 'Not quite. Connected stones are captured as a group when all liberties are gone.',
     lessonNote: 'A connected group is removed together when the group has no liberties.',
@@ -196,7 +176,6 @@ export const puzzles: GoPuzzleData[] = [
     stones: [],
     solutions: [],
     sgfPath: '/puzzles/sgf-auto-capture-001.sgf',
-    viewport: topRightCornerViewport,
     successMessage: 'Correct. White’s reply captured the black stone through the same board engine.',
     failureMessage: 'Not quite. Follow the SGF sequence in the corner.',
     lessonNote: 'Automatic replies use the same full-board move logic as learner moves.',
@@ -379,6 +358,87 @@ export function getDefaultViewport(boardSize: number): BoardViewport {
   }
 }
 
+function clamp(value: number, min: number, max: number) {
+  return Math.min(Math.max(value, min), max)
+}
+
+function getViewportStart({
+  boardSize,
+  center,
+  preferredStart,
+  requiredMin,
+  requiredMax,
+  viewportSize,
+}: {
+  boardSize: number
+  center: number
+  preferredStart: number
+  requiredMin: number
+  requiredMax: number
+  viewportSize: number
+}) {
+  let start = clamp(Math.round(center - (viewportSize - 1) / 2), preferredStart, boardSize - viewportSize)
+
+  if (start > requiredMin) start = requiredMin
+  if (start + viewportSize - 1 < requiredMax) start = requiredMax - viewportSize + 1
+
+  return clamp(start, preferredStart, boardSize - viewportSize)
+}
+
+export function getAutoViewport(position: ParsedSgfPuzzle, preferredSize = 9, padding = 2): BoardViewport {
+  const relevantPoints: BoardPoint[] = [...position.stones, ...position.moves]
+
+  if (!relevantPoints.length) return getDefaultViewport(position.boardSize)
+
+  const minX = Math.min(...relevantPoints.map((point) => point.x))
+  const maxX = Math.max(...relevantPoints.map((point) => point.x))
+  const minY = Math.min(...relevantPoints.map((point) => point.y))
+  const maxY = Math.max(...relevantPoints.map((point) => point.y))
+  const requiredMinX = Math.max(0, minX - padding)
+  const requiredMaxX = Math.min(position.boardSize - 1, maxX + padding)
+  const requiredMinY = Math.max(0, minY - padding)
+  const requiredMaxY = Math.min(position.boardSize - 1, maxY + padding)
+  const requiredWidth = requiredMaxX - requiredMinX + 1
+  const requiredHeight = requiredMaxY - requiredMinY + 1
+  const width = Math.min(position.boardSize, Math.max(preferredSize, requiredWidth))
+  const height = Math.min(position.boardSize, Math.max(preferredSize, requiredHeight))
+  const centerX = (minX + maxX) / 2
+  const centerY = (minY + maxY) / 2
+  const xStart = getViewportStart({
+    boardSize: position.boardSize,
+    center: centerX,
+    preferredStart: 0,
+    requiredMin: requiredMinX,
+    requiredMax: requiredMaxX,
+    viewportSize: width,
+  })
+  const yStart = getViewportStart({
+    boardSize: position.boardSize,
+    center: centerY,
+    preferredStart: 0,
+    requiredMin: requiredMinY,
+    requiredMax: requiredMaxY,
+    viewportSize: height,
+  })
+
+  return {
+    xStart,
+    yStart,
+    width,
+    height,
+  }
+}
+
+export function getPuzzleViewport(
+  puzzle: GoPuzzleData,
+  position: ParsedSgfPuzzle,
+  sgfSource?: string | null,
+): BoardViewport {
+  if (sgfSource || puzzle.sgf) return getAutoViewport(position)
+
+  return puzzle.viewport ?? getDefaultViewport(position.boardSize)
+}
+
 export function getPuzzlePosition(puzzle: GoPuzzleData, sgfSource?: string | null): ParsedSgfPuzzle {
   if (sgfSource || puzzle.sgf) return parseSgfPuzzle(sgfSource ?? puzzle.sgf ?? '')
 
@@ -415,7 +475,7 @@ export function validatePuzzleDefinition(puzzle: GoPuzzleData, sgfSource?: strin
   const errors: string[] = []
   const parsed = getPuzzlePosition(puzzle, sgfSource)
   const occupied = new Set<string>()
-  const viewport = puzzle.viewport ?? getDefaultViewport(parsed.boardSize)
+  const viewport = getPuzzleViewport(puzzle, parsed, sgfSource)
 
   if (!puzzle.id.trim()) errors.push('Puzzle id is required.')
   if (parsed.boardSize < 2) errors.push(`${puzzle.id}: board size must be at least 2.`)

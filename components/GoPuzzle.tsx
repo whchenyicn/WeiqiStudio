@@ -3,10 +3,10 @@
 import { useEffect, useMemo, useState } from 'react'
 import { applyMove } from '@/lib/goBoard'
 import {
-  getDefaultViewport,
   getPuzzleById,
   getPuzzlePosition,
   getPuzzleSteps,
+  getPuzzleViewport,
   isPointInViewport,
   pointKey,
   validatePuzzleDefinition,
@@ -87,7 +87,7 @@ function PuzzleBoard({ puzzle }: { puzzle: GoPuzzleData }) {
   const [sgfSource, setSgfSource] = useState<string | null>(puzzle.sgf ?? null)
   const [sgfLoadError, setSgfLoadError] = useState<string | null>(null)
   const position = useMemo(() => getPuzzlePosition(puzzle, sgfSource), [puzzle, sgfSource])
-  const viewport = puzzle.viewport ?? getDefaultViewport(position.boardSize)
+  const viewport = useMemo(() => getPuzzleViewport(puzzle, position, sgfSource), [position, puzzle, sgfSource])
   const legacySteps = useMemo(() => getPuzzleSteps(puzzle, sgfSource), [puzzle, sgfSource])
   const validationErrors = useMemo(() => validatePuzzleDefinition(puzzle, sgfSource), [puzzle, sgfSource])
   const [selectedPoint, setSelectedPoint] = useState<BoardPoint | null>(null)

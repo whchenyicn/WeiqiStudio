@@ -13,8 +13,9 @@ import {
   type BoardPoint,
   type BoardViewport,
   type GoPuzzleData,
-  type ParsedSgfMove,
+  type ParsedSgfNode,
   type PuzzleStone,
+  type SgfMarkup,
   type StoneColor,
 } from '@/lib/puzzles'
 
@@ -54,8 +55,22 @@ function getViewCoordinate(point: BoardPoint, viewport: BoardViewport) {
   }
 }
 
-function getCurrentSgfUserMove(moves: ParsedSgfMove[], moveCursor: number, toPlay: StoneColor) {
-  return moves.find((move, index) => index >= moveCursor && move.color === toPlay)
+function getSgfNodeAtPath(root: ParsedSgfNode, path: number[]) {
+  return path.reduce((node, childIndex) => node.children[childIndex] ?? node, root)
+}
+
+function getSgfNodesAtPath(root: ParsedSgfNode, path: number[]) {
+  const nodes: ParsedSgfNode[] = []
+  let node = root
+
+  for (const childIndex of path) {
+    const child = node.children[childIndex]
+    if (!child) break
+    nodes.push(child)
+    node = child
+  }
+
+  return nodes
 }
 
 function PuzzleStoneSvg({
@@ -82,6 +97,45 @@ function PuzzleStoneSvg({
   )
 }
 
+function PuzzleMarkupSvg({
+  markup,
+  viewport,
+  stone,
+}: {
+  markup: SgfMarkup
+  viewport: BoardViewport
+  stone?: PuzzleStone
+}) {
+  const { cx, cy } = getViewCoordinate(markup, viewport)
+  const color = stone?.color === 'black' ? '#fafaf8' : '#173f31'
+
+  if (markup.type === 'triangle') {
+    const radius = 7.5
+    const points = [
+      `${cx},${cy - radius}`,
+      `${cx - radius * 0.86},${cy + radius * 0.5}`,
+      `${cx + radius * 0.86},${cy + radius * 0.5}`,
+    ].join(' ')
+
+    return <polygon points={points} fill="none" stroke={color} strokeWidth="2" strokeLinejoin="round" pointerEvents="none" />
+  }
+
+  return (
+    <text
+      x={cx}
+      y={cy}
+      fill={color}
+      fontSize="13"
+      fontWeight="700"
+      textAnchor="middle"
+      dominantBaseline="central"
+      pointerEvents="none"
+    >
+      {markup.text}
+    </text>
+  )
+}
+
 function PuzzleBoard({ puzzle }: { puzzle: GoPuzzleData }) {
   const isSgfPuzzle = Boolean(puzzle.sgf || puzzle.sgfPath)
   const [sgfSource, setSgfSource] = useState<string | null>(puzzle.sgf ?? null)
@@ -93,16 +147,25 @@ function PuzzleBoard({ puzzle }: { puzzle: GoPuzzleData }) {
   const [selectedPoint, setSelectedPoint] = useState<BoardPoint | null>(null)
   const [result, setResult] = useState<PuzzleResult>(null)
   const [currentStepIndex, setCurrentStepIndex] = useState(0)
-  const [moveCursor, setMoveCursor] = useState(0)
+  const [sgfNodePath, setSgfNodePath] = useState<number[]>([])
+  const [isCorrectBranch, setIsCorrectBranch] = useState(true)
   const [boardStones, setBoardStones] = useState<PuzzleStone[]>(position.stones)
   const [feedbackMessage, setFeedbackMessage] = useState<string | null>(null)
   const isComplete = result === 'complete'
   const isLoadingSgf = Boolean(puzzle.sgfPath && !sgfSource && !sgfLoadError)
   const currentLegacyStep = legacySteps[currentStepIndex]
-  const currentSgfMove = getCurrentSgfUserMove(position.moves, moveCursor, position.toPlay)
+  const currentSgfNode = useMemo(() => getSgfNodeAtPath(position.root, sgfNodePath), [position.root, sgfNodePath])
+  const availableSgfMoves = useMemo(
+    () => currentSgfNode.children.filter((child) => child.move?.color === position.toPlay),
+    [currentSgfNode, position.toPlay],
+  )
   const stonesInView = useMemo(() => {
     return boardStones.filter((stone) => isPointInViewport(stone, viewport))
   }, [boardStones, viewport])
+  const markupInView = useMemo(
+    () => position.markup.filter((markup) => isPointInViewport(markup, viewport)),
+    [position.markup, viewport],
+  )
   const stoneMap = useMemo(() => {
     return new Map(boardStones.map((stone) => [pointKey(stone), stone]))
   }, [boardStones])
@@ -144,23 +207,27 @@ function PuzzleBoard({ puzzle }: { puzzle: GoPuzzleData }) {
     setSelectedPoint(null)
     setResult(null)
     setCurrentStepIndex(0)
-    setMoveCursor(0)
+    setSgfNodePath([])
+    setIsCorrectBranch(true)
     setBoardStones(position.stones)
     setFeedbackMessage(null)
   }, [position.stones, puzzle.id, sgfSource])
 
   function playSgfMove(point: BoardPoint) {
-    if (!currentSgfMove) return
+    const selectedChildIndex = currentSgfNode.children.findIndex(
+      (child) => child.move?.color === position.toPlay && samePoint(child.move, point),
+    )
 
-    const isCorrect = samePoint(currentSgfMove, point)
-
-    if (!isCorrect) {
+    if (selectedChildIndex === -1) {
       setFeedbackMessage(puzzle.failureMessage)
       setResult('incorrect')
       return
     }
 
-    const learnerMoveResult = applyMove(boardStones, { ...point, color: currentSgfMove.color }, position.boardSize)
+    const selectedChild = currentSgfNode.children[selectedChildIndex]
+    if (!selectedChild.move) return
+
+    const learnerMoveResult = applyMove(boardStones, selectedChild.move, position.boardSize)
 
     if (!learnerMoveResult.ok) {
       setFeedbackMessage(learnerMoveResult.reason)
@@ -169,15 +236,17 @@ function PuzzleBoard({ puzzle }: { puzzle: GoPuzzleData }) {
     }
 
     let nextStones = learnerMoveResult.stones
-    let nextCursor = position.moves.findIndex((move, index) => index >= moveCursor && samePoint(move, currentSgfMove))
-
-    if (nextCursor === -1) nextCursor = moveCursor
-    nextCursor += 1
+    const nextPath = [...sgfNodePath, selectedChildIndex]
+    let nextNode = selectedChild
+    let nextBranchIsCorrect = isCorrectBranch && selectedChildIndex === 0
 
     const autoReplies: string[] = []
 
-    while (nextCursor < position.moves.length && position.moves[nextCursor].color !== position.toPlay) {
-      const reply = position.moves[nextCursor]
+    while (true) {
+      const replyNode = nextNode.children[0]
+      if (!replyNode?.move || replyNode.move.color === position.toPlay) break
+      const reply = replyNode.move
+
       const replyResult = applyMove(nextStones, reply, position.boardSize)
 
       if (!replyResult.ok) {
@@ -194,15 +263,22 @@ function PuzzleBoard({ puzzle }: { puzzle: GoPuzzleData }) {
             }.`
           : `${getStoneName(reply.color)} replies automatically.`,
       )
-      nextCursor += 1
+      nextPath.push(0)
+      nextNode = replyNode
     }
 
     setBoardStones(nextStones)
-    setMoveCursor(nextCursor)
+    setSgfNodePath(nextPath)
+    setIsCorrectBranch(nextBranchIsCorrect)
 
-    if (nextCursor >= position.moves.length) {
-      setFeedbackMessage(puzzle.successMessage)
-      setResult('complete')
+    if (nextNode.children.length === 0) {
+      if (nextBranchIsCorrect) {
+        setFeedbackMessage(puzzle.successMessage)
+        setResult('complete')
+      } else {
+        setFeedbackMessage('This recorded variation reaches an incorrect result. Reset the puzzle and try again.')
+        setResult('incorrect')
+      }
       return
     }
 
@@ -212,7 +288,9 @@ function PuzzleBoard({ puzzle }: { puzzle: GoPuzzleData }) {
         : ''
 
     setFeedbackMessage(
-      autoReplies.length ? `Correct.${captureText} ${autoReplies.join(' ')}` : `Correct.${captureText} Continue the sequence.`,
+      autoReplies.length
+        ? `${nextBranchIsCorrect ? 'Correct.' : 'Recorded variation.'}${captureText} ${autoReplies.join(' ')}`
+        : `${nextBranchIsCorrect ? 'Correct.' : 'Recorded variation.'}${captureText} Continue the sequence.`,
     )
     setResult('correct')
   }
@@ -298,7 +376,8 @@ function PuzzleBoard({ puzzle }: { puzzle: GoPuzzleData }) {
     setSelectedPoint(null)
     setResult(null)
     setCurrentStepIndex(0)
-    setMoveCursor(0)
+    setSgfNodePath([])
+    setIsCorrectBranch(true)
     setBoardStones(position.stones)
     setFeedbackMessage(null)
   }
@@ -327,12 +406,15 @@ function PuzzleBoard({ puzzle }: { puzzle: GoPuzzleData }) {
   const currentPrompt = isLoadingSgf
     ? 'Loading puzzle…'
     : isSgfPuzzle
-      ? currentSgfMove
+      ? availableSgfMoves.length > 0
         ? puzzle.objective
         : puzzle.lessonNote
       : currentLegacyStep?.prompt ?? puzzle.lessonNote
+  const playedSgfNodes = getSgfNodesAtPath(position.root, sgfNodePath)
   const currentStepLabel = isSgfPuzzle
-    ? `Move ${position.moves.filter((move, index) => index < moveCursor && move.color === position.toPlay).length + 1} of ${position.moves.filter((move) => move.color === position.toPlay).length}`
+    ? position.moves.length > 0
+      ? `Move ${Math.min(playedSgfNodes.filter((node) => node.move?.color === position.toPlay).length + 1, position.moves.filter((move) => move.color === position.toPlay).length)} of ${position.moves.filter((move) => move.color === position.toPlay).length}`
+      : 'SGF markup preview'
     : `Step ${currentStepIndex + 1} of ${legacySteps.length}`
 
   return (
@@ -393,6 +475,15 @@ function PuzzleBoard({ puzzle }: { puzzle: GoPuzzleData }) {
             />
           ))}
 
+          {markupInView.map((markup, index) => (
+            <PuzzleMarkupSvg
+              key={`${markup.type}-${pointKey(markup)}-${markup.type === 'label' ? markup.text : index}`}
+              markup={markup}
+              viewport={viewport}
+              stone={stoneMap.get(pointKey(markup))}
+            />
+          ))}
+
           {selectedPoint && isPointInViewport(selectedPoint, viewport) ? (
             <circle
               {...getViewCoordinate(selectedPoint, viewport)}
@@ -406,8 +497,12 @@ function PuzzleBoard({ puzzle }: { puzzle: GoPuzzleData }) {
 
           {points.map((point) => {
             const stone = stoneMap.get(pointKey(point))
-            const canPlay = !stone && !isComplete && !isLoadingSgf
-            const expectedSolutions = isSgfPuzzle && currentSgfMove ? [currentSgfMove] : currentLegacyStep?.solutions ?? []
+            const canPlay = !stone && !isComplete && !isLoadingSgf && (!isSgfPuzzle || availableSgfMoves.length > 0)
+            const expectedSolutions = isSgfPuzzle
+              ? currentSgfNode.children[0]?.move
+                ? [currentSgfNode.children[0].move]
+                : []
+              : currentLegacyStep?.solutions ?? []
             const isSolution = result === 'incorrect' && expectedSolutions.some((solution) => samePoint(solution, point))
             const { cx, cy } = getViewCoordinate(point, viewport)
 

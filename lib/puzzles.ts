@@ -32,10 +32,30 @@ export type ParsedSgfMove = BoardPoint & {
   color: StoneColor
 }
 
+export type SgfTriangle = BoardPoint & {
+  type: 'triangle'
+}
+
+export type SgfLabel = BoardPoint & {
+  type: 'label'
+  text: string
+}
+
+export type SgfMarkup = SgfTriangle | SgfLabel
+
+export type ParsedSgfNode = {
+  move?: ParsedSgfMove
+  markup: SgfMarkup[]
+  children: ParsedSgfNode[]
+}
+
 export type ParsedSgfPuzzle = {
   boardSize: number
   toPlay: StoneColor
   stones: PuzzleStone[]
+  root: ParsedSgfNode
+  markup: SgfMarkup[]
+  allMoves: ParsedSgfMove[]
   moves: ParsedSgfMove[]
 }
 
@@ -61,6 +81,74 @@ export type GoPuzzleData = {
 }
 
 export const puzzles: GoPuzzleData[] = [
+  {
+    id: 'triangles',
+    title: 'SGF Triangle Markup Test',
+    description: 'A display test for triangle markup loaded directly from SGF.',
+    boardSize: 19,
+    toPlay: 'black',
+    objective: 'Inspect the triangle markers and their alignment with stones and intersections.',
+    difficulty: 'Beginner',
+    category: 'SGF Test',
+    tags: ['sgf', 'markup', 'triangles'],
+    stones: [],
+    solutions: [],
+    sgfPath: '/puzzles/triangles.sgf',
+    successMessage: 'Triangle markup loaded correctly.',
+    failureMessage: 'This SGF is a markup display test.',
+    lessonNote: 'Triangle markers are read from the SGF TR property and do not affect board state.',
+  },
+  {
+    id: 'alphabets',
+    title: 'SGF Alphabet Label Test',
+    description: 'A display test for alphabet labels loaded directly from SGF.',
+    boardSize: 19,
+    toPlay: 'black',
+    objective: 'Inspect the alphabet labels and their alignment with stones and intersections.',
+    difficulty: 'Beginner',
+    category: 'SGF Test',
+    tags: ['sgf', 'markup', 'labels'],
+    stones: [],
+    solutions: [],
+    sgfPath: '/puzzles/alphabets.sgf',
+    successMessage: 'Alphabet labels loaded correctly.',
+    failureMessage: 'This SGF is a markup display test.',
+    lessonNote: 'Alphabet labels are read from the SGF LB property and do not affect board state.',
+  },
+  {
+    id: 'numbers',
+    title: 'SGF Number Label Test',
+    description: 'A display test for numeric labels loaded directly from SGF.',
+    boardSize: 19,
+    toPlay: 'black',
+    objective: 'Inspect the numeric labels and their alignment with stones and intersections.',
+    difficulty: 'Beginner',
+    category: 'SGF Test',
+    tags: ['sgf', 'markup', 'labels', 'numbers'],
+    stones: [],
+    solutions: [],
+    sgfPath: '/puzzles/numbers.sgf',
+    successMessage: 'Numeric labels loaded correctly.',
+    failureMessage: 'This SGF is a markup display test.',
+    lessonNote: 'Numeric labels use the same SGF LB property as alphabet labels.',
+  },
+  {
+    id: 'variations',
+    title: 'SGF Variation Tree Test',
+    description: 'Black to play. The first SGF variation is correct; the other recorded branches remain playable.',
+    boardSize: 19,
+    toPlay: 'black',
+    objective: 'Choose a recorded SGF branch and follow it to the end.',
+    difficulty: 'Beginner',
+    category: 'SGF Test',
+    tags: ['sgf', 'variations', 'branches'],
+    stones: [],
+    solutions: [],
+    sgfPath: '/puzzles/variations.sgf',
+    successMessage: 'Correct. You completed the first SGF variation.',
+    failureMessage: 'That move is not part of any available SGF variation.',
+    lessonNote: 'The first SGF variation is treated as correct. Other recorded variations are playable but finish as incorrect.',
+  },
   {
     id: 'puzzle1',
     title: 'Uploaded Test Puzzle 1',
@@ -301,38 +389,192 @@ function sgfPointToBoardPoint(value: string): BoardPoint {
   }
 }
 
-function getSgfPropertyValues(sgf: string, property: string) {
-  const match = sgf.match(new RegExp(`${property}((?:\\[[a-z]{2}\\])+)`))
-  if (!match) return []
+type SgfProperties = Record<string, string[]>
 
-  return Array.from(match[1].matchAll(/\[([a-z]{2})\]/g), (valueMatch) => valueMatch[1])
+type RawSgfNode = {
+  properties: SgfProperties
+  children: RawSgfNode[]
+}
+
+function parseSgfCollection(sgf: string): RawSgfNode {
+  let cursor = 0
+
+  function skipWhitespace() {
+    while (/\s/.test(sgf[cursor] ?? '')) cursor += 1
+  }
+
+  function readValue() {
+    let value = ''
+    cursor += 1
+
+    while (cursor < sgf.length) {
+      const character = sgf[cursor]
+
+      if (character === ']') {
+        cursor += 1
+        break
+      }
+
+      if (character === '\\') {
+        cursor += 1
+        const escaped = sgf[cursor]
+
+        if (escaped === '\r' && sgf[cursor + 1] === '\n') cursor += 1
+        else if (escaped !== '\r' && escaped !== '\n' && escaped !== undefined) value += escaped
+
+        cursor += 1
+        continue
+      }
+
+      value += character
+      cursor += 1
+    }
+
+    return value
+  }
+
+  function readNode(): RawSgfNode {
+    const properties: SgfProperties = {}
+    cursor += 1
+
+    while (cursor < sgf.length) {
+      skipWhitespace()
+      const propertyMatch = sgf.slice(cursor).match(/^([A-Z]+)/)
+
+      if (!propertyMatch) break
+
+      const property = propertyMatch[1]
+      cursor += property.length
+      skipWhitespace()
+      const values: string[] = []
+
+      while (sgf[cursor] === '[') {
+        values.push(readValue())
+        skipWhitespace()
+      }
+
+      properties[property] = [...(properties[property] ?? []), ...values]
+    }
+
+    return { properties, children: [] }
+  }
+
+  function readGameTree(): RawSgfNode {
+    skipWhitespace()
+    if (sgf[cursor] !== '(') throw new Error('Invalid SGF: expected a game tree.')
+    cursor += 1
+    skipWhitespace()
+
+    const sequence: RawSgfNode[] = []
+    while (sgf[cursor] === ';') {
+      sequence.push(readNode())
+      skipWhitespace()
+    }
+
+    if (!sequence.length) throw new Error('Invalid SGF: game tree has no nodes.')
+
+    for (let index = 0; index < sequence.length - 1; index += 1) {
+      sequence[index].children.push(sequence[index + 1])
+    }
+
+    const tail = sequence[sequence.length - 1]
+    while (sgf[cursor] === '(') {
+      tail.children.push(readGameTree())
+      skipWhitespace()
+    }
+
+    if (sgf[cursor] !== ')') throw new Error('Invalid SGF: game tree is not closed.')
+    cursor += 1
+
+    return sequence[0]
+  }
+
+  return readGameTree()
+}
+
+function getNodeMove(node: RawSgfNode): ParsedSgfMove | undefined {
+  const color = node.properties.B?.[0] !== undefined ? 'B' : node.properties.W?.[0] !== undefined ? 'W' : null
+  if (!color) return undefined
+
+  const value = node.properties[color][0]
+  if (!/^[a-z]{2}$/.test(value)) return undefined
+
+  return {
+    ...sgfPointToBoardPoint(value),
+    color: sgfColorToStoneColor(color),
+  }
+}
+
+function getNodeMarkup(node: RawSgfNode): SgfMarkup[] {
+  const triangles: SgfTriangle[] = (node.properties.TR ?? [])
+    .filter((value) => /^[a-z]{2}$/.test(value))
+    .map((value) => ({ ...sgfPointToBoardPoint(value), type: 'triangle' as const }))
+  const labels: SgfLabel[] = (node.properties.LB ?? []).flatMap((value) => {
+    if (!/^[a-z]{2}:/.test(value)) return []
+    return [{ ...sgfPointToBoardPoint(value.slice(0, 2)), type: 'label' as const, text: value.slice(3) }]
+  })
+
+  return [...triangles, ...labels]
+}
+
+function convertSgfNode(node: RawSgfNode): ParsedSgfNode {
+  return {
+    move: getNodeMove(node),
+    markup: getNodeMarkup(node),
+    children: node.children.map(convertSgfNode),
+  }
+}
+
+function flattenSgfMoves(root: ParsedSgfNode): ParsedSgfMove[] {
+  const moves: ParsedSgfMove[] = []
+
+  function visit(node: ParsedSgfNode) {
+    if (node.move) moves.push(node.move)
+    node.children.forEach(visit)
+  }
+
+  visit(root)
+  return moves
+}
+
+function getFirstVariationMoves(root: ParsedSgfNode): ParsedSgfMove[] {
+  const moves: ParsedSgfMove[] = []
+  let node: ParsedSgfNode | undefined = root
+
+  while (node) {
+    if (node.move) moves.push(node.move)
+    node = node.children[0]
+  }
+
+  return moves
 }
 
 export function parseSgfPuzzle(sgf: string): ParsedSgfPuzzle {
-  const sizeMatch = sgf.match(/SZ\[(\d+)\]/)
-  const playerMatch = sgf.match(/PL\[([BW])\]/)
-  const boardSize = sizeMatch ? Number(sizeMatch[1]) : 19
-  const toPlay = playerMatch ? sgfColorToStoneColor(playerMatch[1]) : 'black'
-  const setupBlack = getSgfPropertyValues(sgf, 'AB').map((value) => ({
+  const rawRoot = parseSgfCollection(sgf)
+  const root = convertSgfNode(rawRoot)
+  const boardSize = Number(rawRoot.properties.SZ?.[0] ?? 19)
+  const setupBlack = (rawRoot.properties.AB ?? []).filter((value) => /^[a-z]{2}$/.test(value)).map((value) => ({
     ...sgfPointToBoardPoint(value),
     color: 'black' as const,
   }))
-  const setupWhite = getSgfPropertyValues(sgf, 'AW').map((value) => ({
+  const setupWhite = (rawRoot.properties.AW ?? []).filter((value) => /^[a-z]{2}$/.test(value)).map((value) => ({
     ...sgfPointToBoardPoint(value),
     color: 'white' as const,
   }))
-  const setupEndIndex = sgf.search(/;[BW]\[[a-z]{2}\]/)
-  const moveSource = setupEndIndex === -1 ? '' : sgf.slice(setupEndIndex)
-  const moves = Array.from(moveSource.matchAll(/;([BW])\[([a-z]{2})\]/g), (match) => ({
-    ...sgfPointToBoardPoint(match[2]),
-    color: sgfColorToStoneColor(match[1]),
-  }))
+  const allMoves = flattenSgfMoves(root)
+  const explicitPlayer = rawRoot.properties.PL?.[0]
+  const toPlay = explicitPlayer === 'B' || explicitPlayer === 'W'
+    ? sgfColorToStoneColor(explicitPlayer)
+    : root.move?.color ?? root.children.find((child) => child.move)?.move?.color ?? 'black'
 
   return {
     boardSize,
     toPlay,
     stones: [...setupBlack, ...setupWhite],
-    moves,
+    root,
+    markup: root.markup,
+    allMoves,
+    moves: getFirstVariationMoves(root),
   }
 }
 
@@ -386,7 +628,7 @@ function getViewportStart({
 }
 
 export function getAutoViewport(position: ParsedSgfPuzzle, preferredSize = 9, padding = 2): BoardViewport {
-  const relevantPoints: BoardPoint[] = [...position.stones, ...position.moves]
+  const relevantPoints: BoardPoint[] = [...position.stones, ...position.allMoves, ...position.markup]
 
   if (!relevantPoints.length) return getDefaultViewport(position.boardSize)
 
@@ -446,6 +688,9 @@ export function getPuzzlePosition(puzzle: GoPuzzleData, sgfSource?: string | nul
     boardSize: puzzle.boardSize,
     toPlay: puzzle.toPlay,
     stones: puzzle.stones,
+    root: { markup: [], children: [] },
+    markup: [],
+    allMoves: [],
     moves: [],
   }
 }
@@ -492,7 +737,7 @@ export function validatePuzzleDefinition(puzzle: GoPuzzleData, sgfSource?: strin
   if (!isPointOnBoard({ x: viewport.xStart + viewport.width - 1, y: viewport.yStart + viewport.height - 1 }, parsed.boardSize)) {
     errors.push(`${puzzle.id}: viewport extends outside the board.`)
   }
-  if (!parsed.moves.length && !puzzle.solutions.length && !puzzle.steps?.length) {
+  if (!parsed.allMoves.length && !parsed.markup.length && !puzzle.solutions.length && !puzzle.steps?.length) {
     errors.push(`${puzzle.id}: at least one SGF move, solution, or step is required.`)
   }
 
@@ -508,6 +753,30 @@ export function validatePuzzleDefinition(puzzle: GoPuzzleData, sgfSource?: strin
     }
 
     occupied.add(key)
+  }
+
+  for (const markup of parsed.markup) {
+    const key = pointKey(markup)
+
+    if (!isPointOnBoard(markup, parsed.boardSize)) {
+      errors.push(`${puzzle.id}: markup ${key} is outside the board.`)
+    }
+
+    if (!isPointInViewport(markup, viewport)) {
+      errors.push(`${puzzle.id}: markup ${key} is outside the visible viewport.`)
+    }
+  }
+
+  for (const move of parsed.allMoves) {
+    const key = pointKey(move)
+
+    if (!isPointOnBoard(move, parsed.boardSize)) {
+      errors.push(`${puzzle.id}: SGF move ${key} is outside the board.`)
+    }
+
+    if (!isPointInViewport(move, viewport)) {
+      errors.push(`${puzzle.id}: SGF move ${key} is outside the visible viewport.`)
+    }
   }
 
   const steps = getPuzzleSteps(puzzle, sgfSource)
